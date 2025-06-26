@@ -28,6 +28,7 @@ class FinancialMetricsCalculator:
         """Initialize calculator with hospital financial data."""
         self.data = data.copy()
         self.metrics = {}
+        self._clean_data()
         self.column_mapping = self._create_column_mapping()
         
         # Log mapping success rate
@@ -36,13 +37,25 @@ class FinancialMetricsCalculator:
         mapping_rate = (mapped_count / total_required) * 100 if total_required > 0 else 0
         logger.info(f"Column mapping success: {mapped_count}/{total_required} ({mapping_rate:.1f}%)")
         
+    def _clean_data(self):
+        """
+        Convert all possible columns to numeric, coercing errors.
+        This handles cases where financial figures are loaded as strings.
+        """
+        logger.info("Cleaning and converting data to numeric types...")
+        for col in self.data.columns:
+            if self.data[col].dtype == 'object':
+                # Attempt to convert to numeric, coercing errors to NaN
+                self.data[col] = pd.to_numeric(self.data[col], errors='coerce')
+        logger.info("Data cleaning complete.")
+
     def _get_required_columns(self) -> List[str]:
         """Get list of all required column names for financial calculations."""
         return [
             'total_revenue', 'operating_expenses', 'net_income', 'total_assets',
             'current_assets', 'current_liabilities', 'total_equity', 'accounts_receivable',
             'operating_income', 'cash_equivalents', 'inventory', 'total_debt',
-            'interest_expense', 'patient_revenue', 'total_liabilities'
+            'interest_expense', 'patient_revenue', 'total_liabilities', 'retained_earnings'
         ]
         
     def _create_column_mapping(self) -> Dict[str, str]:
@@ -142,6 +155,13 @@ class FinancialMetricsCalculator:
                 'TOTAL_EQUITY', 'NET_WORTH', 'FUND_BALANCE',
                 'PY_TOT_EQUITY',            # Prior Year Total Equity
                 'EQUITY_TOTAL'
+            ],
+            'retained_earnings': [
+                # Balance Sheet equity section (P5) for Retained Earnings
+                'UNREST_FND_RET_EARN',      # Unrestricted Fund Retained Earnings
+                'RETAINED_EARNINGS',
+                'PY_UNREST_FND_RET_EARN',
+                'NET_ASSETS_RELEASED_RETAINED'
             ],
             
             # Cash Flow Section - PCL-Validated Primary Fields
@@ -315,33 +335,16 @@ class FinancialMetricsCalculator:
         
         return mapping
 
-    def _get_col(self, name: str, fill_value: Union[float, str] = 0) -> Optional[pd.Series]:
-        """Get mapped column with robust missing value handling."""
-        col_name = self.column_mapping.get(name)
-        if col_name and col_name in self.data.columns:
-            series = self.data[col_name].copy()
-            
-            # Convert to numeric if possible
-            if series.dtype == 'object':
-                series = pd.to_numeric(series, errors='coerce')
-            
-            # Fill missing values
-            if fill_value == 'median':
-                fill_value = series.median()
-            elif fill_value == 'mean':
-                fill_value = series.mean()
-            
-            filled_series = series.fillna(fill_value)
-            
-            # Log if significant missing data was filled
-            missing_pct = (series.isna().sum() / len(series)) * 100
-            if missing_pct > 10:
-                logger.debug(f"Filled {missing_pct:.1f}% missing values in {name} with {fill_value}")
-            
-            return filled_series
-        
-        logger.debug(f"Column '{name}' not found in mapping")
-        return None
+    def _get_col(self, key: str) -> Optional[pd.Series]:
+        """
+        Safely retrieve a data column using the mapped name.
+        Returns a Series of NaNs if the key is not mapped.
+        """
+        col_name = self.column_mapping.get(key)
+        if col_name and col_name in self.data:
+            return self.data[col_name]
+        logger.warning(f"'{key}' not found in column mapping. Returning NaNs.")
+        return pd.Series(np.nan, index=self.data.index)
 
     def _safe_divide(self, numerator: pd.Series, denominator: pd.Series, 
                     default_value: float = np.nan) -> pd.Series:

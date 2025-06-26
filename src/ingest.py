@@ -217,6 +217,32 @@ class HospitalDataLoader:
         return quality_report
 
 
+def load_multiple_years_data(years: List[int], data_dir: Union[str, Path]) -> pd.DataFrame:
+    """
+    Load and concatenate data for a list of years.
+
+    Args:
+        years (List[int]): The years to load.
+        data_dir (Union[str, Path]): The directory containing the processed data.
+
+    Returns:
+        pd.DataFrame: A single DataFrame containing data for all specified years,
+                      with a 'year' column added.
+    """
+    loader = HospitalDataLoader(data_dir)
+    all_dfs = []
+    for year in years:
+        df = loader.load_year_data(year)
+        if not df.empty:
+            df['year'] = year
+            all_dfs.append(df)
+    
+    if not all_dfs:
+        return pd.DataFrame()
+        
+    return pd.concat(all_dfs, ignore_index=True)
+
+
 def main():
     """Demo function showing how to use the data loader."""
     try:
