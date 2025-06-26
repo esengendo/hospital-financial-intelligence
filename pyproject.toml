@@ -23,27 +23,34 @@ classifiers = [
 ]
 
 dependencies = [
+    # Core data science
     "pandas>=2.0.0",
     "numpy>=1.24.0",
+    
+    # Visualization
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
     "plotly>=5.14.0",
+    "kaleido>=0.2.1",
+    
+    # Machine learning (lightweight)
     "scikit-learn>=1.3.0",
     "xgboost>=1.7.0",
-    "shap>=0.42.0",
-    "transformers>=4.30.0",
-    "accelerate>=0.20.0",
-    "sentencepiece>=0.1.99",
-    "streamlit>=1.25.0",
-    "python-dotenv>=1.0.0",
-    "jupyter>=1.0.0",
+    
+    # Financial analysis specific
+    "shap>=0.45.0",
+    "numba>=0.58.0",
+    
+    # Data handling
     "openpyxl>=3.1.0",
-    "requests>=2.31.0",
-    "torch>=2.0.0",
-    "datasets>=2.12.0",
-    "kaleido>=0.2.1",
     "fastparquet",
     "xlrd",
+    
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "fuzzywuzzy>=0.18.0",
+    "python-Levenshtein>=0.20.0",
 ]
 
 [project.optional-dependencies]
@@ -54,6 +61,20 @@ dev = [
     "flake8>=6.0.0",
     "mypy>=1.3.0",
     "pre-commit>=3.3.0",
+]
+
+web = [
+    "streamlit>=1.25.0",
+    "jupyter>=1.0.0",
+]
+
+ml-advanced = [
+    # Only install if needed for advanced ML features
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "accelerate>=0.20.0",
+    "sentencepiece>=0.1.99",
+    "datasets>=2.12.0",
 ]
 
 [project.urls]

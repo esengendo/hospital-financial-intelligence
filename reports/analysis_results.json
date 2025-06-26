@@ -1,0 +1,15 @@
+{
+  "analysis_date": "2025-06-26T10:30:58.934450",
+  "records_analyzed": 1768,
+  "years_covered": [
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "data_quality_score": 34.22102991763241,
+  "outputs": {
+    "summary_file": "executive_summary_20250626.json",
+    "dashboard_file": "financial_dashboard_20250626.html"
+  }
+}

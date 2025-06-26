@@ -1,28 +1,16 @@
 """
-Hospital Financial AI - Production-ready financial distress prediction system.
+Hospital Financial Intelligence - Healthcare Analytics Platform
 
-This package provides a complete pipeline for:
-- Hospital financial data ingestion and preprocessing
-- Feature engineering for financial health indicators
-- Machine learning model training and evaluation
-- SHAP-based explainability analysis
-- LLM-powered executive summary generation
-- Interactive Streamlit dashboard
-
-Author: Senior Data Scientist
-Version: 0.1.0
+A production-ready hospital financial distress prediction and analysis system
+focused on California hospital data with modern MLOps and explainable AI capabilities.
 """
 
-__version__ = "0.1.0"
-__author__ = "Senior Data Scientist"
-__email__ = "data@hospital-analysis.com"
-
-# Package metadata
-PACKAGE_NAME = "hospital-financial-ai"
+VERSION = "1.0.0"
 DESCRIPTION = "Production-ready hospital financial distress prediction and analysis system"
 
 # Import core modules for easy access (commenting out until modules are created)
-from .ingest import HospitalDataIngester
+from .ingest import HospitalDataLoader
+from .config import Config, get_config
 # from .preprocess import HospitalDataPreprocessor
 # from .features import FinancialFeatureEngineer
 # from .model import HospitalRiskPredictor
@@ -30,10 +18,14 @@ from .ingest import HospitalDataIngester
 # from .llm_assist import FinancialLLMAssistant
 
 __all__ = [
-    "HospitalDataIngester",
+    "HospitalDataLoader",
+    "Config",
+    "get_config",
     # "HospitalDataPreprocessor", 
     # "FinancialFeatureEngineer",
     # "HospitalRiskPredictor",
     # "ModelExplainer",
     # "FinancialLLMAssistant",
+    "VERSION",
+    "DESCRIPTION",
 ]

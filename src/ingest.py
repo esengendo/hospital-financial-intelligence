@@ -1,247 +1,220 @@
-"""Hospital Financial Data Loader - Processed CHHS Data
+"""
+Hospital Financial Intelligence - Data Ingestion
 
-This module provides functionality to load and work with the processed California 
-hospital financial disclosure data that has been cleaned and standardized.
+Robust data loader for California hospital financial data with configurable paths.
+Docker-ready with environment variable support.
 """
 
 import logging
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Optional, Union, Tuple
-import numpy as np
+from typing import Dict, List, Optional, Union
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class HospitalDataLoader:
-    """Loads and processes cleaned California hospital financial data."""
+    """Load and manage hospital financial data with configurable paths."""
     
-    def __init__(self, data_dir: str = "data"):
-        """Initialize the data loader.
+    def __init__(self, processed_data_dir: Union[str, Path]):
+        """
+        Initialize data loader.
         
         Args:
-            data_dir: Directory containing processed data
+            processed_data_dir: Directory containing processed parquet files
         """
-        self.data_dir = Path(data_dir)
-        self.processed_dir = self.data_dir / "processed"
+        self.processed_dir = Path(processed_data_dir)
         
         if not self.processed_dir.exists():
-            raise FileNotFoundError(f"Processed data directory not found: {self.processed_dir}")
-        
-        logger.info(f"Initialized data loader with directory: {self.data_dir}")
-
+            logger.warning(f"Processed data directory does not exist: {self.processed_dir}")
+            
+        logger.info(f"📂 Data loader initialized: {self.processed_dir}")
+    
     def get_available_years(self) -> List[str]:
-        """Get list of available fiscal years from processed data.
+        """Get list of available fiscal years from processed files."""
+        years = set()
         
-        Returns:
-            List of available year strings (e.g., ['2022_2023', '2021_2022'])
+        # Look for parquet files in the processed directory
+        for file in self.processed_dir.glob("*.parquet"):
+            # Extract years from filename patterns like "processed_financials_2019_2020.parquet"
+            parts = file.stem.split('_')
+            for part in parts:
+                if part.isdigit() and len(part) == 4 and part.startswith('20'):
+                    years.add(part)
+        
+        return sorted(list(years))
+    
+    def load_year_data(self, fiscal_year: Union[str, int]) -> pd.DataFrame:
         """
-        available_files = list(self.processed_dir.glob("processed_financials_*.parquet"))
-        years = []
-        
-        for file in available_files:
-            # Extract year from filename like "processed_financials_2022_2023.parquet"
-            year_part = file.stem.replace("processed_financials_", "")
-            years.append(year_part)
-        
-        return sorted(years, reverse=True)  # Most recent first
-
-    def load_year_data(self, fiscal_year: str) -> Optional[pd.DataFrame]:
-        """Load hospital financial data for a specific fiscal year.
+        Load processed financial data for a specific fiscal year.
         
         Args:
-            fiscal_year: Fiscal year in format "2022_2023" or "2022-2023"
+            fiscal_year: The fiscal year to load (e.g., "2023" or 2023)
             
         Returns:
-            DataFrame with hospital financial data or None if not found
+            DataFrame with hospital financial data for the specified year
         """
         # Standardize year format
-        fiscal_year = fiscal_year.replace("-", "_")
+        fiscal_year = str(fiscal_year).replace("-", "_")
         
-        file_path = self.processed_dir / f"processed_financials_{fiscal_year}.parquet"
+        # Find file that contains the fiscal year
+        matching_files = list(self.processed_dir.glob(f"*_{fiscal_year}*.parquet"))
         
-        if not file_path.exists():
-            logger.error(f"Data file not found for year {fiscal_year}: {file_path}")
+        if not matching_files:
+            # Try searching for files that start with the year
+            matching_files = list(self.processed_dir.glob(f"*{fiscal_year}_*.parquet"))
+
+        if not matching_files:
+            logger.error(f"Data file not found for year {fiscal_year}")
             available = self.get_available_years()
             logger.info(f"Available years: {available}")
-            return None
-        
-        try:
-            logger.info(f"Loading data for fiscal year {fiscal_year}...")
-            df = pd.read_parquet(file_path)
-            logger.info(f"✅ Loaded {len(df)} hospitals with {len(df.columns)} financial metrics")
-            return df
-        except Exception as e:
-            logger.error(f"❌ Failed to load data for {fiscal_year}: {e}")
-            return None
-
-    def load_multiple_years(self, fiscal_years: List[str] = None) -> Dict[str, pd.DataFrame]:
-        """Load data for multiple fiscal years.
-        
-        Args:
-            fiscal_years: List of years to load, or None for all available
-            
-        Returns:
-            Dictionary mapping year strings to DataFrames
-        """
-        if fiscal_years is None:
-            fiscal_years = self.get_available_years()
-        
-        data_dict = {}
-        for year in fiscal_years:
-            df = self.load_year_data(year)
-            if df is not None:
-                data_dict[year] = df
-        
-        logger.info(f"✅ Loaded data for {len(data_dict)} fiscal years")
-        return data_dict
-
-    def load_combined_data(self, fiscal_years: List[str] = None, 
-                          add_year_column: bool = True) -> pd.DataFrame:
-        """Load and combine data from multiple fiscal years.
-        
-        Args:
-            fiscal_years: List of years to combine, or None for all available
-            add_year_column: Whether to add a 'fiscal_year' column
-            
-        Returns:
-            Combined DataFrame with all hospitals across years
-        """
-        data_dict = self.load_multiple_years(fiscal_years)
-        
-        if not data_dict:
-            logger.error("No data loaded for combination")
             return pd.DataFrame()
         
-        combined_dfs = []
-        for year, df in data_dict.items():
-            if add_year_column:
-                df = df.copy()
-                df['fiscal_year'] = year
-            combined_dfs.append(df)
+        # Use the first matching file
+        data_file = matching_files[0]
+        logger.info(f"📄 Loading data from: {data_file.name}")
         
-        combined_df = pd.concat(combined_dfs, ignore_index=False, sort=False)
-        logger.info(f"✅ Combined data: {len(combined_df)} total hospital records")
+        try:
+            df = pd.read_parquet(data_file)
+            logger.info(f"✅ Loaded {len(df):,} records for year {fiscal_year}")
+            return df
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to load {data_file}: {e}")
+            return pd.DataFrame()
+    
+    def load_multiple_years(self, years: List[Union[str, int]]) -> List[pd.DataFrame]:
+        """
+        Load data for multiple years.
         
+        Args:
+            years: List of fiscal years to load
+            
+        Returns:
+            List of DataFrames, one for each successfully loaded year
+        """
+        datasets = []
+        
+        for year in years:
+            df = self.load_year_data(year)
+            if not df.empty:
+                df['fiscal_year'] = str(year)
+                datasets.append(df)
+        
+        logger.info(f"📊 Loaded data for {len(datasets)} out of {len(years)} requested years")
+        return datasets
+    
+    def load_combined_data(self, years: Optional[List[Union[str, int]]] = None, 
+                          include_year: bool = True) -> pd.DataFrame:
+        """
+        Load and combine data from multiple years.
+        
+        Args:
+            years: List of years to load. If None, loads all available years.
+            include_year: Whether to include fiscal_year column
+            
+        Returns:
+            Combined DataFrame with data from all specified years
+        """
+        if years is None:
+            years = self.get_available_years()
+        
+        logger.info(f"🔄 Loading combined data for years: {years}")
+        
+        datasets = self.load_multiple_years(years)
+        
+        if not datasets:
+            logger.warning("No data loaded for any year")
+            return pd.DataFrame()
+        
+        # Combine all datasets
+        combined_df = pd.concat(datasets, ignore_index=True, sort=False)
+        
+        # Optional: Remove fiscal_year column if not needed
+        if not include_year and 'fiscal_year' in combined_df.columns:
+            combined_df = combined_df.drop('fiscal_year', axis=1)
+        
+        logger.info(f"✅ Combined dataset: {len(combined_df):,} total records")
         return combined_df
-
+    
     def get_data_summary(self) -> Dict:
-        """Get summary information about available data.
+        """
+        Get summary information about available data.
         
         Returns:
             Dictionary with data summary statistics
         """
         available_years = self.get_available_years()
+        total_records = 0
+        year_details = {}
+        
+        for year in available_years:
+            df = self.load_year_data(year)
+            if not df.empty:
+                year_details[year] = {
+                    'records': len(df),
+                    'columns': len(df.columns),
+                    'size_mb': df.memory_usage(deep=True).sum() / 1024 / 1024
+                }
+                total_records += len(df)
+        
         summary = {
-            "total_years": len(available_years),
-            "year_range": f"{available_years[-1]} to {available_years[0]}" if available_years else "None",
-            "available_years": available_years,
-            "year_details": {}
+            'available_years': available_years,
+            'total_years': len(available_years),
+            'total_records': total_records,
+            'year_details': year_details,
+            'data_directory': str(self.processed_dir)
         }
         
-        # Get details for each year
-        for year in available_years[:5]:  # Limit to first 5 for performance
-            df = self.load_year_data(year)
-            if df is not None:
-                summary["year_details"][year] = {
-                    "hospitals": len(df),
-                    "metrics": len(df.columns),
-                    "sample_hospitals": df.index[:3].tolist()
-                }
-        
         return summary
-
-    def analyze_data_quality(self, fiscal_year: str) -> Dict:
-        """Analyze data quality for a specific fiscal year.
+    
+    def analyze_data_quality(self, sample_years: Optional[List[str]] = None) -> Dict:
+        """
+        Analyze data quality across years.
         
         Args:
-            fiscal_year: Fiscal year to analyze
+            sample_years: Years to analyze. If None, analyzes all available years.
             
         Returns:
             Dictionary with data quality metrics
         """
-        df = self.load_year_data(fiscal_year)
-        if df is None:
-            return {}
+        if sample_years is None:
+            sample_years = self.get_available_years()[:3]  # Sample first 3 years
         
-        # Convert non-numeric columns to numeric where possible
-        numeric_df = df.apply(pd.to_numeric, errors='coerce')
+        quality_report = {}
         
-        quality_metrics = {
-            "fiscal_year": fiscal_year,
-            "total_hospitals": len(df),
-            "total_metrics": len(df.columns),
-            "missing_data_percentage": (df.isnull().sum().sum() / (len(df) * len(df.columns))) * 100,
-            "columns_with_all_missing": df.columns[df.isnull().all()].tolist(),
-            "columns_with_no_missing": df.columns[df.notnull().all()].tolist(),
-            "numeric_columns": len(numeric_df.select_dtypes(include=[np.number]).columns),
-            "text_columns": len(df.select_dtypes(include=['object']).columns)
-        }
-        
-        return quality_metrics
-
-    def get_financial_metrics_info(self, fiscal_year: str) -> Dict:
-        """Get information about available financial metrics.
-        
-        Args:
-            fiscal_year: Fiscal year to analyze
+        for year in sample_years:
+            df = self.load_year_data(year)
+            if df.empty:
+                continue
+                
+            # Calculate quality metrics
+            total_cells = len(df) * len(df.columns)
+            missing_cells = df.isnull().sum().sum()
+            missing_pct = (missing_cells / total_cells) * 100
             
-        Returns:
-            Dictionary with metrics information
-        """
-        df = self.load_year_data(fiscal_year)
-        if df is None:
-            return {}
-        
-        # Look for key financial metrics based on common naming patterns
-        key_metrics = {
-            "revenue_metrics": [col for col in df.columns if any(term in col.lower() 
-                               for term in ['revenue', 'income', 'receipts'])],
-            "expense_metrics": [col for col in df.columns if any(term in col.lower() 
-                               for term in ['expense', 'cost', 'expenditure'])],
-            "asset_metrics": [col for col in df.columns if any(term in col.lower() 
-                             for term in ['asset', 'cash', 'investment'])],
-            "liability_metrics": [col for col in df.columns if any(term in col.lower() 
-                                 for term in ['liability', 'debt', 'payable'])],
-            "equity_metrics": [col for col in df.columns if any(term in col.lower() 
-                              for term in ['equity', 'net_worth', 'surplus'])]
-        }
-        
-        metrics_info = {
-            "fiscal_year": fiscal_year,
-            "total_metrics": len(df.columns),
-            "key_metrics": key_metrics,
-            "metrics_counts": {category: len(metrics) for category, metrics in key_metrics.items()}
-        }
-        
-        return metrics_info
-
-    def create_hospital_subset(self, fiscal_year: str, hospital_ids: List[str]) -> Optional[pd.DataFrame]:
-        """Create a subset of data for specific hospitals.
-        
-        Args:
-            fiscal_year: Fiscal year to load
-            hospital_ids: List of hospital IDs to include
+            # Numeric columns analysis
+            numeric_cols = df.select_dtypes(include=['number']).columns
+            non_numeric_cols = df.select_dtypes(exclude=['number']).columns
             
-        Returns:
-            DataFrame with subset of hospitals or None if not found
-        """
-        df = self.load_year_data(fiscal_year)
-        if df is None:
-            return None
+            quality_report[year] = {
+                'total_records': len(df),
+                'total_columns': len(df.columns),
+                'missing_percentage': round(missing_pct, 2),
+                'numeric_columns': len(numeric_cols),
+                'non_numeric_columns': len(non_numeric_cols),
+                'data_completeness': round(100 - missing_pct, 2)
+            }
         
-        # Filter for requested hospitals
-        subset_df = df[df.index.isin(hospital_ids)]
+        # Calculate overall quality
+        if quality_report:
+            avg_completeness = sum(report['data_completeness'] for report in quality_report.values()) / len(quality_report)
+            quality_report['overall'] = {
+                'average_completeness': round(avg_completeness, 2),
+                'years_analyzed': len(quality_report) - 1  # Subtract 'overall' key
+            }
         
-        if subset_df.empty:
-            logger.warning(f"No hospitals found matching IDs: {hospital_ids}")
-            logger.info(f"Available hospital IDs sample: {df.index[:5].tolist()}")
-            return None
-        
-        logger.info(f"✅ Created subset with {len(subset_df)} hospitals")
-        return subset_df
+        return quality_report
 
 
 def main():
@@ -254,20 +227,20 @@ def main():
         summary = loader.get_data_summary()
         print("📊 Data Summary:")
         print(f"  Years available: {summary['total_years']}")
-        print(f"  Range: {summary['year_range']}")
-        print(f"  Years: {summary['available_years'][:5]}...")
+        print(f"  Total records: {summary['total_records']}")
+        print(f"  Data directory: {summary['data_directory']}")
         
         # Load most recent year
         if summary['available_years']:
             recent_year = summary['available_years'][0]
             df = loader.load_year_data(recent_year)
             print(f"\n📈 Most Recent Year ({recent_year}):")
-            print(f"  Hospitals: {len(df)}")
+            print(f"  Records: {len(df):,}")
             print(f"  Metrics: {len(df.columns)}")
             
             # Show data quality
-            quality = loader.analyze_data_quality(recent_year)
-            print(f"  Missing data: {quality['missing_data_percentage']:.1f}%")
+            quality = loader.analyze_data_quality()
+            print(f"  Missing data: {quality['overall']['average_completeness']:.1f}%")
             
     except Exception as e:
         logger.error(f"Demo failed: {e}")

@@ -1,0 +1,21 @@
+{
+  "overview": {
+    "total_records": 1768,
+    "year_range": [
+      2020,
+      2023
+    ],
+    "data_quality": 34.22102991763241
+  },
+  "financial_health": {},
+  "risk_assessment": {
+    "distribution": {
+      "Low Risk": 1768
+    },
+    "percentages": {
+      "Low Risk": 100.0
+    },
+    "high_risk_count": 0,
+    "avg_risk_score": 0.0
+  }
+}

@@ -19,29 +19,62 @@ This project delivers actionable insights for healthcare administrators by:
 ## 🏗️ Architecture
 
 ```
-hospital_financial_ai/
+Project_Hospital_Financial_Analysis/
 ├── 📁 data/
 │   ├── raw/                    # Original CHHS data files
 │   └── processed/              # Cleaned, feature-engineered datasets
-├── 📁 models/                  # Trained ML models & artifacts
-├── 📁 reports/                 # Generated analysis reports
-├── 📁 visuals/                 # Charts, plots, and SHAP outputs
+├── 📁 models/                  # Trained ML models & artifacts (Phase 4)
+├── 📁 reports/                 # ✅ Generated analysis reports & dashboards
+├── 📁 visuals/                 # ✅ Charts, plots, and SHAP outputs
 │   ├── eda_charts/
 │   └── shap_outputs/
-├── 📁 notebooks/               # Jupyter analysis notebooks
-├── 📁 src/                     # Core Python modules
-│   ├── ingest.py              # Data ingestion from CHHS API
-│   ├── preprocess.py          # Data cleaning & validation
-│   ├── features.py            # Feature engineering pipeline
-│   ├── model.py               # ML training & evaluation
-│   ├── explain.py             # SHAP explainability analysis
-│   ├── llm_assist.py          # Hugging Face LLM integration
-│   └── dashboard.py           # Streamlit web interface
-├── 🐳 Dockerfile              # Container configuration
-├── 📋 requirements.txt        # Package dependencies
-├── 🚀 start.sh               # One-command startup script
+├── 📁 notebooks/               # ✅ Jupyter EDA analysis
+├── 📁 src/                     # ✅ Core Python modules
+│   ├── __init__.py            # ✅ Package initialization
+│   ├── config.py              # ✅ Docker-ready configuration system
+│   ├── ingest.py              # ✅ Data loading with flexible paths
+│   ├── preprocess.py          # ✅ Data cleaning & validation
+│   ├── eda.py                 # ✅ Enhanced EDA with HADR PCL validation
+│   ├── financial_metrics.py   # ✅ HADR-compliant financial calculations
+│   └── visualizations.py      # ✅ Professional charting and dashboards
+├── 📊 run_eda.py              # ✅ Docker-compatible EDA execution
+├── 🏥 HADR_DATA_STRUCTURE.md  # ✅ Official OSHPD documentation analysis
+├── 📦 pyproject.toml          # ✅ UV package management
+├── 🔒 uv.lock                 # ✅ Dependency lock file
 └── 📚 Documentation files
 ```
+
+## 🚀 Project Progress
+
+### ✅ Phase 1: Data Ingestion & Setup (Complete)
+- Data source identification and access
+- UV package manager setup
+- Project structure initialization
+
+### ✅ Phase 2: Data Preprocessing (Complete)  
+- CHHS data cleaning and standardization
+- Data quality validation
+- Parquet optimization for performance
+
+### ✅ Phase 3: Enhanced EDA with HADR Integration (Complete)
+- **Docker-ready configuration system** with environment variables
+- **HADR PCL validation** with official OSHPD compliance
+- **4-strategy column mapping** achieving 80% success rate
+- **Financial metrics calculator** with 7 core healthcare ratios
+- **Comprehensive reporting** with automated dashboards
+- **22-year analysis** covering 9,956 hospital records
+
+### 🔄 Phase 4: Machine Learning Pipeline (Next)
+- Feature engineering with financial domain expertise
+- Time-series cross-validation for temporal data
+- XGBoost ensemble with hyperparameter optimization
+- SHAP explainability for regulatory compliance
+
+### 📋 Phase 5: Dashboard & Deployment (Planned)
+- Streamlit interactive dashboard
+- Docker containerization
+- Production deployment guide
+- API documentation
 
 ## 🚀 Quick Start
 
@@ -101,42 +134,63 @@ This project uses the **Hospital Annual Financial Disclosure Report** from the C
 
 ## 🔬 Technical Features
 
-### Machine Learning Pipeline
+### Docker-Ready Configuration System
+- **Environment Variables**: Configurable data paths for containerization
+- **Command Line Interface**: `--base-dir`, `--data-dir`, `--output-dir` options
+- **Auto-Discovery**: Flexible year detection and batch processing
+- **Production Ready**: No hardcoded paths, full container compatibility
+
+### Enhanced HADR PCL Validation
+- **Official Compliance**: Direct integration with OSHPD HADR documentation
+- **PCL References**: Page-Column-Line validation for all financial fields
+- **4-Strategy Mapping**: Direct PCL → Fuzzy PCL → Standard → Partial matching
+- **Data Quality**: 100% HADR alignment for 2018-2023 data with 80% mapping success
+
+### Financial Metrics Calculator
+- **7 Core Metrics**: Liquidity, profitability, efficiency, and leverage indicators
+- **Missing Value Handling**: Robust 0-fill strategy following financial standards
+- **HADR-Aligned Fields**: Official PCL references for regulatory compliance
+- **Business Context**: Healthcare-specific financial ratio analysis
+
+### Machine Learning Pipeline (Phase 4 - Planned)
 - **Models**: XGBoost, Random Forest, Logistic Regression ensemble
 - **Features**: 45+ engineered financial ratios and trend indicators
 - **Validation**: Time-series cross-validation with forward chaining
 - **Metrics**: ROC-AUC, Precision-Recall, Financial Impact Analysis
 
-### Explainable AI
+### Explainable AI (Phase 5 - Planned)
 - **SHAP Values**: Feature importance and model interpretability
 - **Visualizations**: Waterfall plots, force plots, summary plots
 - **Business Context**: Financial ratio analysis with domain expertise
 
-### LLM Integration
-- **Models**: Flan-T5, Falcon-7B, Mistral-7B via Hugging Face
-- **Structured Outputs**: 
-  - Financial Health Overview
-  - Risk Factor Analysis  
-  - Actionable Recommendations
-- **Optimization**: Model quantization and efficient inference
-
 ## 📈 Key Insights & Results
 
-### Model Performance
-- **ROC-AUC**: 0.87 (XGBoost ensemble)
-- **Precision**: 0.82 at 20% recall threshold
+### Phase 3 (EDA) - Current Status
+- **Dataset Coverage**: 22 years (2002-2023) of California hospital data
+- **Records Analyzed**: 9,956 hospital financial reports
+- **HADR Compliance**: 100% PCL validation for enhanced years (2018-2023)
+- **Financial Metrics**: 7 core metrics with 80% successful mapping
+- **Data Quality**: 36.9% overall (expected due to specialty field structure)
+
+### Technical Achievements
+- **Configuration System**: Full Docker deployment readiness
+- **Column Mapping**: 4-strategy approach with 80% success rate
+- **HADR Integration**: Official OSHPD PCL references and validation
+- **Financial Calculations**: Robust missing value handling and 0-fill strategy
+- **Reporting**: Automated dashboards and executive summaries
+
+### HADR PCL Validated Fields (2018-2023)
+1. **Patient Revenue** (`REV_TOT_PT_REV` - P12_C23_L415)
+2. **Operating Expenses** (`PY_TOT_OP_EXP` - P8_C2_L200)
+3. **Net Income** (`EQ_UNREST_FND_NET_INCOME` - P7_C1_L55)
+4. **Assets** (`PY_SP_PURP_FND_OTH_ASSETS` - P6_C2_L30)
+5. **Cash Flow** (`CASH_FLOW_SPECIFY_OTH_OP_L102` - P9_C91_L102)
+6. **Liabilities** (`PY_SP_PURP_FND_TOT_LIAB_EQ` - P6_C4_L75)
+
+### Future Model Performance (Phase 4 - Planned)
+- **ROC-AUC**: Target 0.87+ (XGBoost ensemble)
+- **Precision**: Target 0.82+ at 20% recall threshold
 - **Early Warning**: 12-month prediction horizon
-
-### Top Risk Indicators
-1. **Operating Margin Trend** (SHAP importance: 0.24)
-2. **Days Cash on Hand** (SHAP importance: 0.19)
-3. **Labor Cost Ratio** (SHAP importance: 0.15)
-4. **Contract Labor Expense** (SHAP importance: 0.12)
-
-### Business Impact
-- **Cost Savings**: Average $2.3M per hospital through early intervention
-- **Risk Mitigation**: 75% reduction in unexpected financial distress
-- **Operational Efficiency**: 40% improvement in resource allocation
 
 ## 🖥️ Dashboard Features
 
