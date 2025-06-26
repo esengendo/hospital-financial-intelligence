@@ -1,0 +1,186 @@
+2025-06-26 15:22:45,190 - INFO - 🚀 Starting Enhanced Modeling Pipeline
+2025-06-26 15:22:45,190 - INFO - ============================================================
+2025-06-26 15:22:45,190 - INFO - 📂 Step 1: Loading enhanced feature dataset...
+2025-06-26 15:22:45,191 - INFO - Loading 21 enhanced feature files...
+2025-06-26 15:22:45,235 - INFO - ✅ Loaded 473 records from features_enhanced_2003.parquet
+2025-06-26 15:22:45,244 - INFO - ✅ Loaded 473 records from features_enhanced_2004.parquet
+2025-06-26 15:22:45,253 - INFO - ✅ Loaded 473 records from features_enhanced_2005.parquet
+2025-06-26 15:22:45,262 - INFO - ✅ Loaded 448 records from features_enhanced_2006.parquet
+2025-06-26 15:22:45,270 - INFO - ✅ Loaded 455 records from features_enhanced_2007.parquet
+2025-06-26 15:22:45,279 - INFO - ✅ Loaded 455 records from features_enhanced_2008.parquet
+2025-06-26 15:22:45,288 - INFO - ✅ Loaded 454 records from features_enhanced_2009.parquet
+2025-06-26 15:22:45,297 - INFO - ✅ Loaded 448 records from features_enhanced_2010.parquet
+2025-06-26 15:22:45,306 - INFO - ✅ Loaded 447 records from features_enhanced_2011.parquet
+2025-06-26 15:22:45,315 - INFO - ✅ Loaded 449 records from features_enhanced_2012.parquet
+2025-06-26 15:22:45,324 - INFO - ✅ Loaded 449 records from features_enhanced_2013.parquet
+2025-06-26 15:22:45,333 - INFO - ✅ Loaded 451 records from features_enhanced_2014.parquet
+2025-06-26 15:22:45,341 - INFO - ✅ Loaded 428 records from features_enhanced_2015.parquet
+2025-06-26 15:22:45,350 - INFO - ✅ Loaded 447 records from features_enhanced_2016.parquet
+2025-06-26 15:22:45,358 - INFO - ✅ Loaded 447 records from features_enhanced_2017.parquet
+2025-06-26 15:22:45,368 - INFO - ✅ Loaded 455 records from features_enhanced_2018.parquet
+2025-06-26 15:22:45,377 - INFO - ✅ Loaded 455 records from features_enhanced_2019.parquet
+2025-06-26 15:22:45,386 - INFO - ✅ Loaded 444 records from features_enhanced_2020.parquet
+2025-06-26 15:22:45,395 - INFO - ✅ Loaded 441 records from features_enhanced_2021.parquet
+2025-06-26 15:22:45,404 - INFO - ✅ Loaded 441 records from features_enhanced_2022.parquet
+2025-06-26 15:22:45,413 - INFO - ✅ Loaded 442 records from features_enhanced_2023.parquet
+2025-06-26 15:22:45,424 - INFO - 📊 Enhanced dataset: 9475 records, 147 features
+2025-06-26 15:22:45,424 - INFO - 📊 Step 2: Analyzing feature enhancements...
+2025-06-26 15:22:45,424 - INFO - 📊 Comparing original vs enhanced feature sets...
+2025-06-26 15:22:45,436 - INFO - 🤖 Step 3: Training enhanced XGBoost model...
+2025-06-26 15:22:45,436 - INFO - 🤖 Training enhanced XGBoost model...
+2025-06-26 15:22:45,437 - ERROR - ❌ Enhanced modeling pipeline failed: ModelTrainer.__init__() got an unexpected keyword argument 'mode'
+2025-06-26 15:22:45,437 - ERROR - Traceback (most recent call last):
+  File "/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/run_enhanced_modeling.py", line 272, in main
+    results, model_path = train_enhanced_model(data)
+  File "/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/run_enhanced_modeling.py", line 112, in train_enhanced_model
+    trainer = ModelTrainer(mode='balanced')  # Use balanced mode for comprehensive evaluation
+TypeError: ModelTrainer.__init__() got an unexpected keyword argument 'mode'
+
+2025-06-26 15:24:23,525 - INFO - 🚀 Starting Enhanced Modeling Pipeline
+2025-06-26 15:24:23,525 - INFO - ============================================================
+2025-06-26 15:24:23,525 - INFO - 📂 Step 1: Loading enhanced feature dataset...
+2025-06-26 15:24:23,526 - INFO - Loading 21 enhanced feature files...
+2025-06-26 15:24:23,569 - INFO - ✅ Loaded 473 records from features_enhanced_2003.parquet
+2025-06-26 15:24:23,578 - INFO - ✅ Loaded 473 records from features_enhanced_2004.parquet
+2025-06-26 15:24:23,587 - INFO - ✅ Loaded 473 records from features_enhanced_2005.parquet
+2025-06-26 15:24:23,596 - INFO - ✅ Loaded 448 records from features_enhanced_2006.parquet
+2025-06-26 15:24:23,605 - INFO - ✅ Loaded 455 records from features_enhanced_2007.parquet
+2025-06-26 15:24:23,613 - INFO - ✅ Loaded 455 records from features_enhanced_2008.parquet
+2025-06-26 15:24:23,622 - INFO - ✅ Loaded 454 records from features_enhanced_2009.parquet
+2025-06-26 15:24:23,631 - INFO - ✅ Loaded 448 records from features_enhanced_2010.parquet
+2025-06-26 15:24:23,639 - INFO - ✅ Loaded 447 records from features_enhanced_2011.parquet
+2025-06-26 15:24:23,648 - INFO - ✅ Loaded 449 records from features_enhanced_2012.parquet
+2025-06-26 15:24:23,657 - INFO - ✅ Loaded 449 records from features_enhanced_2013.parquet
+2025-06-26 15:24:23,666 - INFO - ✅ Loaded 451 records from features_enhanced_2014.parquet
+2025-06-26 15:24:23,674 - INFO - ✅ Loaded 428 records from features_enhanced_2015.parquet
+2025-06-26 15:24:23,683 - INFO - ✅ Loaded 447 records from features_enhanced_2016.parquet
+2025-06-26 15:24:23,692 - INFO - ✅ Loaded 447 records from features_enhanced_2017.parquet
+2025-06-26 15:24:23,701 - INFO - ✅ Loaded 455 records from features_enhanced_2018.parquet
+2025-06-26 15:24:23,710 - INFO - ✅ Loaded 455 records from features_enhanced_2019.parquet
+2025-06-26 15:24:23,719 - INFO - ✅ Loaded 444 records from features_enhanced_2020.parquet
+2025-06-26 15:24:23,728 - INFO - ✅ Loaded 441 records from features_enhanced_2021.parquet
+2025-06-26 15:24:23,737 - INFO - ✅ Loaded 441 records from features_enhanced_2022.parquet
+2025-06-26 15:24:23,746 - INFO - ✅ Loaded 442 records from features_enhanced_2023.parquet
+2025-06-26 15:24:23,756 - INFO - 📊 Enhanced dataset: 9475 records, 147 features
+2025-06-26 15:24:23,757 - INFO - 📊 Step 2: Analyzing feature enhancements...
+2025-06-26 15:24:23,757 - INFO - 📊 Comparing original vs enhanced feature sets...
+2025-06-26 15:24:23,768 - INFO - 🤖 Step 3: Training enhanced XGBoost model...
+2025-06-26 15:24:23,768 - INFO - 🤖 Training enhanced XGBoost model...
+2025-06-26 15:24:23,781 - INFO - 📊 Initialized ModelTrainer with 9475 records
+2025-06-26 15:24:23,781 - INFO - 📅 Year range: 2003 - 2023
+2025-06-26 15:24:23,781 - INFO - 🎯 Creating target variable...
+2025-06-26 15:24:23,781 - INFO - Creating target variable based on operating_margin < -5.0 for 2 consecutive years...
+2025-06-26 15:24:23,846 - INFO - ✅ Target variable created: 277 distressed (2.9%) out of 9475 records
+2025-06-26 15:24:23,846 - WARNING - ⚠️  Severe class imbalance detected (2.9%). Will apply SMOTE and class weighting.
+2025-06-26 15:24:23,846 - INFO - 📊 Creating time-based data splits...
+2025-06-26 15:24:23,846 - INFO - 📊 Splitting data:
+2025-06-26 15:24:23,846 - INFO -    🏋️ Training: ≤ 2019
+2025-06-26 15:24:23,846 - INFO -    🧪 Test: 2020 - 2020
+2025-06-26 15:24:23,846 - INFO -    ✅ Validation: ≥ 2021
+2025-06-26 15:24:23,850 - INFO - 🧹 Handling missing values...
+2025-06-26 15:24:23,851 - INFO -    ⚠️  Found 849146 missing values across 112 features
+2025-06-26 15:24:23,851 - INFO -    🗑️  Dropping 43 completely missing features: ['current_ratio', 'quick_ratio', 'return_on_equity', 'receivables_turnover', 'days_sales_outstanding', 'debt_to_equity', 'debt_to_assets', 'current_ratio_rolling_2y', 'current_ratio_dev_from_2y_avg', 'current_ratio_rolling_3y', 'current_ratio_dev_from_3y_avg', 'debt_to_assets_rolling_2y', 'debt_to_assets_dev_from_2y_avg', 'debt_to_assets_rolling_3y', 'debt_to_assets_dev_from_3y_avg', 'current_ratio_volatility_3y', 'current_ratio_cv_3y', 'current_ratio_volatility_5y', 'current_ratio_cv_5y', 'debt_to_assets_volatility_3y', 'debt_to_assets_cv_3y', 'debt_to_assets_volatility_5y', 'debt_to_assets_cv_5y', 'current_ratio_trend_3y', 'current_ratio_trend_consistency', 'days_cash_on_hand_trend_3y', 'days_cash_on_hand_trend_consistency', 'return_on_assets_trend_3y', 'return_on_assets_trend_consistency', 'debt_to_assets_trend_3y', 'debt_to_assets_trend_consistency', 'asset_turnover_trend_3y', 'asset_turnover_trend_consistency', 'current_ratio_momentum', 'current_ratio_momentum_direction', 'days_cash_on_hand_momentum', 'days_cash_on_hand_momentum_direction', 'return_on_assets_momentum', 'return_on_assets_momentum_direction', 'debt_to_assets_momentum', 'debt_to_assets_momentum_direction', 'asset_turnover_momentum', 'asset_turnover_momentum_direction']
+2025-06-26 15:24:23,885 - INFO -    ✅ Missing values imputed with median strategy for 102 features
+2025-06-26 15:24:23,885 - INFO - 📏 Applying RobustScaler to handle financial outliers...
+2025-06-26 15:24:23,898 - INFO - ✅ Data split and scaling complete:
+2025-06-26 15:24:23,898 - INFO -    🏋️ Training: 7707 records, 61 distressed (0.8%)
+2025-06-26 15:24:23,898 - INFO -    🧪 Test: 444 records, 36 distressed (8.1%)
+2025-06-26 15:24:23,899 - INFO -    ✅ Validation: 1324 records, 180 distressed (13.6%)
+2025-06-26 15:24:23,899 - INFO -    📊 Features: 145 (scaled with RobustScaler)
+2025-06-26 15:24:23,899 - INFO - 🔧 Tuning hyperparameters...
+2025-06-26 15:24:23,899 - INFO - 🔧 Starting balanced hyperparameter tuning with RandomizedSearchCV...
+2025-06-26 15:24:23,899 - INFO -    🎯 Mode: balanced (50 iterations, 3-fold CV)
+2025-06-26 15:24:23,899 - INFO -    🎯 Using SMOTE for synthetic minority class generation...
+2025-06-26 15:24:23,900 - INFO - 📊 Class imbalance ratio: 125.34
+2025-06-26 15:24:23,901 - INFO - 🔍 Testing 50 random parameter combinations...
+2025-06-26 15:24:23,901 - INFO - ⏱️  Estimated time: 15-20 minutes
+2025-06-26 15:24:29,878 - INFO - ✅ Hyperparameter tuning complete!
+2025-06-26 15:24:29,878 - INFO - 🏆 Best parameters: {'classifier__colsample_bytree': np.float64(0.7891665505707182), 'classifier__learning_rate': np.float64(0.028995234005420548), 'classifier__max_depth': 5, 'classifier__min_child_weight': 4, 'classifier__n_estimators': 166, 'classifier__subsample': np.float64(0.8202230023486418)}
+2025-06-26 15:24:29,878 - INFO - 📊 Best CV score (PR-AUC): 1.0000
+2025-06-26 15:24:29,878 - INFO - 🔬 Training XGBoost with enhanced feature set...
+2025-06-26 15:24:29,878 - INFO - 🏋️ Training final model with tuned hyperparameters...
+2025-06-26 15:24:30,158 - INFO - ✅ Model training complete!
+2025-06-26 15:24:30,158 - INFO - 📈 Evaluating enhanced model performance...
+2025-06-26 15:24:30,158 - INFO - 📊 Evaluating model performance...
+2025-06-26 15:24:30,188 - INFO - 📊 TRAIN Performance:
+2025-06-26 15:24:30,188 - INFO -    🎯 Accuracy: 0.999
+2025-06-26 15:24:30,188 - INFO -    📈 ROC-AUC: 1.000
+2025-06-26 15:24:30,188 - INFO -    📊 PR-AUC: 0.998
+2025-06-26 15:24:30,188 - INFO -    🎯 F1-Score: 0.917
+2025-06-26 15:24:30,188 - INFO -    🎯 F2-Score: 0.965 (recall-focused)
+2025-06-26 15:24:30,188 - INFO -    📋 Support: 61 positive cases
+2025-06-26 15:24:30,209 - INFO - 📊 TEST Performance:
+2025-06-26 15:24:30,209 - INFO -    🎯 Accuracy: 0.950
+2025-06-26 15:24:30,209 - INFO -    📈 ROC-AUC: 0.995
+2025-06-26 15:24:30,209 - INFO -    📊 PR-AUC: 0.905
+2025-06-26 15:24:30,210 - INFO -    🎯 F1-Score: 0.766
+2025-06-26 15:24:30,210 - INFO -    🎯 F2-Score: 0.891 (recall-focused)
+2025-06-26 15:24:30,210 - INFO -    📋 Support: 36 positive cases
+2025-06-26 15:24:30,230 - INFO - 📊 VALIDATION Performance:
+2025-06-26 15:24:30,230 - INFO -    🎯 Accuracy: 0.934
+2025-06-26 15:24:30,230 - INFO -    📈 ROC-AUC: 0.988
+2025-06-26 15:24:30,231 - INFO -    📊 PR-AUC: 0.909
+2025-06-26 15:24:30,231 - INFO -    🎯 F1-Score: 0.793
+2025-06-26 15:24:30,231 - INFO -    🎯 F2-Score: 0.869 (recall-focused)
+2025-06-26 15:24:30,231 - INFO -    📋 Support: 180 positive cases
+2025-06-26 15:24:30,247 - INFO - ✅ Model saved to /Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model
+2025-06-26 15:24:30,247 - INFO -    📦 Model: /Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model/model.pkl
+2025-06-26 15:24:30,247 - INFO -    📏 Scaler: /Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model/scaler.pkl
+2025-06-26 15:24:30,247 - INFO -    📋 Metadata: /Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model/metadata.json
+2025-06-26 15:24:30,247 - INFO - ✅ Enhanced model saved to /Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model
+2025-06-26 15:24:30,247 - INFO - 📊 Step 5: Generating enhanced evaluation...
+2025-06-26 15:24:30,247 - INFO - 📊 Generating enhanced model evaluation...
+2025-06-26 15:24:30,247 - ERROR - ❌ Enhanced modeling pipeline failed: [Errno 21] Is a directory: '/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model'
+2025-06-26 15:24:30,249 - ERROR - Traceback (most recent call last):
+  File "/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/run_enhanced_modeling.py", line 284, in main
+    generate_enhanced_evaluation(data, model_path)
+  File "/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/run_enhanced_modeling.py", line 171, in generate_enhanced_evaluation
+    model = joblib.load(model_path)
+  File "/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/.venv/lib/python3.10/site-packages/joblib/numpy_pickle.py", line 735, in load
+    with open(filename, "rb") as f:
+IsADirectoryError: [Errno 21] Is a directory: '/Users/baboo/Desktop/Project_Hospital_Financial_Analysis/models/enhanced_xgboost_model'
+
+2025-06-26 15:25:29,314 - INFO - Loading 21 enhanced feature files...
+2025-06-26 15:25:29,358 - INFO - ✅ Loaded 473 records from features_enhanced_2003.parquet
+2025-06-26 15:25:29,368 - INFO - ✅ Loaded 473 records from features_enhanced_2004.parquet
+2025-06-26 15:25:29,377 - INFO - ✅ Loaded 473 records from features_enhanced_2005.parquet
+2025-06-26 15:25:29,386 - INFO - ✅ Loaded 448 records from features_enhanced_2006.parquet
+2025-06-26 15:25:29,395 - INFO - ✅ Loaded 455 records from features_enhanced_2007.parquet
+2025-06-26 15:25:29,404 - INFO - ✅ Loaded 455 records from features_enhanced_2008.parquet
+2025-06-26 15:25:29,412 - INFO - ✅ Loaded 454 records from features_enhanced_2009.parquet
+2025-06-26 15:25:29,422 - INFO - ✅ Loaded 448 records from features_enhanced_2010.parquet
+2025-06-26 15:25:29,430 - INFO - ✅ Loaded 447 records from features_enhanced_2011.parquet
+2025-06-26 15:25:29,439 - INFO - ✅ Loaded 449 records from features_enhanced_2012.parquet
+2025-06-26 15:25:29,448 - INFO - ✅ Loaded 449 records from features_enhanced_2013.parquet
+2025-06-26 15:25:29,456 - INFO - ✅ Loaded 451 records from features_enhanced_2014.parquet
+2025-06-26 15:25:29,465 - INFO - ✅ Loaded 428 records from features_enhanced_2015.parquet
+2025-06-26 15:25:29,474 - INFO - ✅ Loaded 447 records from features_enhanced_2016.parquet
+2025-06-26 15:25:29,483 - INFO - ✅ Loaded 447 records from features_enhanced_2017.parquet
+2025-06-26 15:25:29,492 - INFO - ✅ Loaded 455 records from features_enhanced_2018.parquet
+2025-06-26 15:25:29,501 - INFO - ✅ Loaded 455 records from features_enhanced_2019.parquet
+2025-06-26 15:25:29,510 - INFO - ✅ Loaded 444 records from features_enhanced_2020.parquet
+2025-06-26 15:25:29,518 - INFO - ✅ Loaded 441 records from features_enhanced_2021.parquet
+2025-06-26 15:25:29,527 - INFO - ✅ Loaded 441 records from features_enhanced_2022.parquet
+2025-06-26 15:25:29,536 - INFO - ✅ Loaded 442 records from features_enhanced_2023.parquet
+2025-06-26 15:25:29,546 - INFO - 📊 Enhanced dataset: 9475 records, 147 features
+2025-06-26 15:25:29,546 - INFO - 📊 Generating enhanced model evaluation...
+2025-06-26 15:25:29,565 - INFO - 📊 Initialized ModelTrainer with 9475 records
+2025-06-26 15:25:29,565 - INFO - 📅 Year range: 2003 - 2023
+2025-06-26 15:25:29,565 - INFO - Creating target variable based on operating_margin < -5.0 for 2 consecutive years...
+2025-06-26 15:25:29,605 - INFO - ✅ Target variable created: 277 distressed (2.9%) out of 9475 records
+2025-06-26 15:25:29,605 - WARNING - ⚠️  Severe class imbalance detected (2.9%). Will apply SMOTE and class weighting.
+2025-06-26 15:25:29,605 - INFO - 📊 Splitting data:
+2025-06-26 15:25:29,605 - INFO -    🏋️ Training: ≤ 2019
+2025-06-26 15:25:29,605 - INFO -    🧪 Test: 2020 - 2020
+2025-06-26 15:25:29,605 - INFO -    ✅ Validation: ≥ 2021
+2025-06-26 15:25:29,612 - INFO - 🧹 Handling missing values...
+2025-06-26 15:25:29,613 - INFO -    ⚠️  Found 849146 missing values across 112 features
+2025-06-26 15:25:29,613 - INFO -    🗑️  Dropping 43 completely missing features: ['current_ratio', 'quick_ratio', 'return_on_equity', 'receivables_turnover', 'days_sales_outstanding', 'debt_to_equity', 'debt_to_assets', 'current_ratio_rolling_2y', 'current_ratio_dev_from_2y_avg', 'current_ratio_rolling_3y', 'current_ratio_dev_from_3y_avg', 'debt_to_assets_rolling_2y', 'debt_to_assets_dev_from_2y_avg', 'debt_to_assets_rolling_3y', 'debt_to_assets_dev_from_3y_avg', 'current_ratio_volatility_3y', 'current_ratio_cv_3y', 'current_ratio_volatility_5y', 'current_ratio_cv_5y', 'debt_to_assets_volatility_3y', 'debt_to_assets_cv_3y', 'debt_to_assets_volatility_5y', 'debt_to_assets_cv_5y', 'current_ratio_trend_3y', 'current_ratio_trend_consistency', 'days_cash_on_hand_trend_3y', 'days_cash_on_hand_trend_consistency', 'return_on_assets_trend_3y', 'return_on_assets_trend_consistency', 'debt_to_assets_trend_3y', 'debt_to_assets_trend_consistency', 'asset_turnover_trend_3y', 'asset_turnover_trend_consistency', 'current_ratio_momentum', 'current_ratio_momentum_direction', 'days_cash_on_hand_momentum', 'days_cash_on_hand_momentum_direction', 'return_on_assets_momentum', 'return_on_assets_momentum_direction', 'debt_to_assets_momentum', 'debt_to_assets_momentum_direction', 'asset_turnover_momentum', 'asset_turnover_momentum_direction']
+2025-06-26 15:25:29,651 - INFO -    ✅ Missing values imputed with median strategy for 102 features
+2025-06-26 15:25:29,651 - INFO - 📏 Applying RobustScaler to handle financial outliers...
+2025-06-26 15:25:29,665 - INFO - ✅ Data split and scaling complete:
+2025-06-26 15:25:29,665 - INFO -    🏋️ Training: 7707 records, 61 distressed (0.8%)
+2025-06-26 15:25:29,665 - INFO -    🧪 Test: 444 records, 36 distressed (8.1%)
+2025-06-26 15:25:29,665 - INFO -    ✅ Validation: 1324 records, 180 distressed (13.6%)
+2025-06-26 15:25:29,665 - INFO -    📊 Features: 145 (scaled with RobustScaler)
+2025-06-26 15:25:29,665 - INFO - 🔍 Generating SHAP analysis for enhanced features...
