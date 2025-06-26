@@ -5,6 +5,8 @@ Centralized configuration management for Docker deployment and environment setup
 """
 
 import os
+import random
+import numpy as np
 from pathlib import Path
 from typing import Optional
 
@@ -21,6 +23,10 @@ class Config:
         """
         self.base_dir = base_dir or Path.cwd()
         
+        # Reproducibility settings
+        self.random_seed = int(os.getenv('RANDOM_SEED', '42'))
+        self._set_random_seeds()
+        
         # Data directories
         self.raw_data_dir = self._get_path_env('RAW_DATA_DIR', 'data/raw')
         self.processed_data_dir = self._get_path_env('PROCESSED_DATA_DIR', 'data/processed')
@@ -32,6 +38,12 @@ class Config:
         
         # Ensure directories exist
         self._create_directories()
+    
+    def _set_random_seeds(self):
+        """Set random seeds for all libraries to ensure reproducibility."""
+        random.seed(self.random_seed)
+        np.random.seed(self.random_seed)
+        os.environ['PYTHONHASHSEED'] = str(self.random_seed)
     
     def _get_path_env(self, env_var: str, default: str) -> Path:
         """

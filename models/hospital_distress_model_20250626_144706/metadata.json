@@ -1,0 +1,12 @@
+{
+  "model_type": "XGBoost with SMOTE and RobustScaler",
+  "features_count": 24,
+  "training_records": 7707,
+  "class_distribution": {
+    "0": 7646,
+    "1": 61
+  },
+  "scaling_method": "RobustScaler",
+  "imbalance_handling": "SMOTE + class_weight",
+  "timestamp": "2025-06-26T14:47:06.051002"
+}

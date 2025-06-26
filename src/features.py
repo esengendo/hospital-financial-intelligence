@@ -37,6 +37,10 @@ class FeatureEngineering:
         self.current_year_data = current_year_data
         self.all_data = all_data
         self.year = self.current_year_data['year'].iloc[0]
+        
+        # Create a single calculator instance to reuse across all feature calculations
+        logger.info(f"Initializing FinancialMetricsCalculator for year {self.year}...")
+        self.calculator = FinancialMetricsCalculator(self.current_year_data)
 
     def generate_features(self) -> pd.DataFrame:
         """
@@ -47,19 +51,42 @@ class FeatureEngineering:
         """
         logger.info(f"🚀 Starting feature engineering for year {self.year}...")
         
-        # Step 1: Calculate core financial ratios
+        # Step 1: Calculate core financial ratios (reuse existing calculator)
         features = self._calculate_core_ratios()
         
-        # Step 2: Engineer advanced predictive features
-        advanced_features = self._calculate_advanced_features(features)
+        # Step 2: Engineer advanced predictive features (reuse existing calculator)
+        advanced_features = self._calculate_advanced_features()
         features = pd.concat([features, advanced_features], axis=1)
 
-        # Step 3: Engineer time-series momentum features
-        ts_features = self._calculate_timeseries_features(features)
+        # Step 3: Engineer time-series momentum features (reuse existing calculator)
+        ts_features = self._calculate_timeseries_features()
         features = pd.concat([features, ts_features], axis=1)
 
+        # Step 4: Preserve identifier columns and combine results
+        try:
+            # Use the actual column names from our processed data
+            identifier_cols = []
+            if 'FAC_NO' in self.current_year_data.columns:
+                identifier_cols.append('FAC_NO')
+            if 'year' in self.current_year_data.columns:
+                identifier_cols.append('year')
+            
+            if identifier_cols:
+                identifiers = self.current_year_data[identifier_cols].copy()
+                # Rename FAC_NO to oshpd_id for consistency with modeling pipeline
+                if 'FAC_NO' in identifiers.columns:
+                    identifiers = identifiers.rename(columns={'FAC_NO': 'oshpd_id'})
+                
+                final_features = pd.concat([identifiers, features], axis=1)
+            else:
+                logger.warning("No identifier columns found. Proceeding without them.")
+                final_features = features
+        except Exception as e:
+            logger.error(f"Error preserving identifiers: {e}")
+            final_features = features
+
         logger.info(f"✅ Completed feature engineering for {self.year}. Generated {len(features.columns)} features.")
-        return features.add_prefix('feature_')
+        return final_features
 
     def _safe_divide(self, numerator: pd.Series, denominator: pd.Series) -> pd.Series:
         """Perform safe division to avoid zero-division errors."""
@@ -70,8 +97,7 @@ class FeatureEngineering:
         logger.info("Calculating core financial ratios via FinancialMetricsCalculator...")
         
         # Use the existing, validated calculator
-        metrics_calculator = FinancialMetricsCalculator(self.current_year_data)
-        metrics_dict = metrics_calculator.calculate_all_metrics()
+        metrics_dict = self.calculator.calculate_all_metrics()
         
         if not metrics_dict:
             logger.warning(f"No metrics could be calculated for year {self.year}. Returning empty DataFrame.")
@@ -83,21 +109,19 @@ class FeatureEngineering:
         logger.info(f"Successfully calculated {len(ratios_df.columns)} core financial ratios.")
         return ratios_df
 
-    def _calculate_advanced_features(self, current_features: pd.DataFrame) -> pd.DataFrame:
+    def _calculate_advanced_features(self) -> pd.DataFrame:
         """Calculate components of predictive models like Altman Z-Score."""
         logger.info("Engineering advanced predictive features (Altman Z-Score components)...")
         df = pd.DataFrame(index=self.current_year_data.index)
         
-        calc = FinancialMetricsCalculator(self.current_year_data)
-
-        total_assets = calc._get_col('total_assets')
-        current_assets = calc._get_col('current_assets')
-        current_liabilities = calc._get_col('current_liabilities')
-        retained_earnings = calc._get_col('retained_earnings')
-        operating_income = calc._get_col('operating_income')
-        total_equity = calc._get_col('total_equity')
-        total_liabilities = calc._get_col('total_liabilities')
-        total_revenue = calc._get_col('total_revenue')
+        total_assets = self.calculator._get_col('total_assets')
+        current_assets = self.calculator._get_col('current_assets')
+        current_liabilities = self.calculator._get_col('current_liabilities')
+        retained_earnings = self.calculator._get_col('retained_earnings')
+        operating_income = self.calculator._get_col('operating_income')
+        total_equity = self.calculator._get_col('total_equity')
+        total_liabilities = self.calculator._get_col('total_liabilities')
+        total_revenue = self.calculator._get_col('total_revenue')
 
         working_capital = current_assets - current_liabilities
         df['z_working_capital_ratio'] = self._safe_divide(working_capital, total_assets)
@@ -109,31 +133,41 @@ class FeatureEngineering:
         logger.info(f"Successfully calculated {len(df.columns)} advanced features.")
         return df
 
-    def _calculate_timeseries_features(self, current_features: pd.DataFrame) -> pd.DataFrame:
+    def _calculate_timeseries_features(self) -> pd.DataFrame:
         """Create momentum and trend-based features using historical data."""
         logger.info("Creating time-series momentum features (Year-over-Year)...")
-        df = pd.DataFrame(index=current_features.index)
+        df = pd.DataFrame(index=self.current_year_data.index)
 
         prev_year_data = self.all_data[self.all_data['year'] == self.year - 1]
-
         if prev_year_data.empty:
-            logger.warning(f"No data for previous year ({self.year - 1}), skipping time-series features.")
+            logger.warning(f"No data for previous year ({self.year - 1}). Skipping time-series features.")
             return df
 
+        # Calculate previous year ratios using a separate calculator
         prev_calc = FinancialMetricsCalculator(prev_year_data)
         prev_ratios_dict = prev_calc.calculate_all_metrics()
         
         if not prev_ratios_dict:
             return df
         
-        prev_ratios_df = pd.DataFrame(prev_ratios_dict).add_suffix('_py')
-        merged_df = current_features.merge(prev_ratios_df, left_index=True, right_index=True, how='left')
-
-        for col in current_features.columns:
-            prev_col = f"{col}_py"
-            if prev_col in merged_df.columns:
-                yoy_change = self._safe_divide(merged_df[col] - merged_df[prev_col], merged_df[prev_col].abs())
-                df[f'{col}_yoy_change'] = yoy_change.fillna(0)
+        # Get current year ratios for comparison
+        current_ratios_dict = self.calculator.calculate_all_metrics()
+        
+        if not current_ratios_dict:
+            return df
+            
+        # Calculate YoY changes for each ratio
+        for ratio_name in current_ratios_dict.keys():
+            if ratio_name in prev_ratios_dict:
+                current_values = current_ratios_dict[ratio_name]
+                prev_values = prev_ratios_dict[ratio_name]
+                
+                yoy_change = self._safe_divide(
+                    current_values - prev_values,
+                    prev_values.abs()
+                ) * 100
+                
+                df[f'{ratio_name}_yoy_change'] = yoy_change
 
         logger.info(f"Successfully calculated {len(df.columns)} time-series features.")
         return df 

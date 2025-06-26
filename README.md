@@ -262,6 +262,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - LLM Integration & Prompt Engineering
 - Data Visualization & Executive Communication
 
+## Reproducibility & Random Seed Configuration
+
+This project implements comprehensive random seed management to ensure full reproducibility across all analyses and model training runs.
+
+### Random Seed Settings
+
+- **Default Seed**: `42` (configurable via environment variable)
+- **Environment Variable**: `RANDOM_SEED=<value>` 
+- **Coverage**: Python `random`, NumPy, XGBoost, pandas sampling, and PYTHONHASHSEED
+
+### Configuration
+
+```python
+# Set custom seed via environment
+export RANDOM_SEED=123
+
+# Or use default (42)
+python run_modeling.py
+```
+
+The seed is automatically applied to:
+- XGBoost model training (`random_state`)
+- Data sampling in EDA (`pandas.sample()`)
+- NumPy random operations
+- Python's built-in `random` module
+- Cross-validation splits
+
+### Implementation
+
+Random seeds are centrally managed in `src/config.py` and automatically applied when the configuration is initialized. This ensures consistent results across:
+- Feature engineering pipelines
+- Model training and evaluation
+- Data visualization sampling
+- Cross-validation procedures
+
 ---
 
 *This project showcases 20 years of healthcare analytics experience in a modern, production-ready implementation suitable for enterprise healthcare organizations.*

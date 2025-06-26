@@ -308,9 +308,9 @@ class HospitalFinancialEDA:
         else:
             self.data = self.data_loader.load_combined_data(include_year=True)
         
-        if sample_size and len(self.data) > sample_size:
-            self.data = self.data.sample(n=sample_size, random_state=42)
-            logger.info(f"   🎲 Sampled: {sample_size:,} records")
+        # Use full dataset - no sampling for production analysis
+        if sample_size:
+            logger.warning(f"⚠️  Sampling disabled for production analysis. Using full dataset ({len(self.data):,} records)")
         
         self._prepare_data()
         logger.info(f"✅ Data ready: {len(self.data):,} records")
