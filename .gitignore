@@ -1,0 +1,45 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Internal project management files (not for public repo)
+PROJECT-RULES.md
+.cursorrules
+CONTEXT.md
+TASKLIST.md
+PROJECT_PLAN.md
+PROJECT_LOG.md
+DOWNLOAD_GUIDE.md
+
+# IDE/Editor files
+.DS_Store
+*.code-workspace
+.vscode/
+.idea/
+
+# Data files (too large for GitHub)
+data/raw/
+data/processed/
+
+# Model files (can be large)
+models/*.pkl
+models/*.joblib
+models/*.h5
+
+# Temporary and cache files
+*.tmp
+*.cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment files
+.env
+.env.local

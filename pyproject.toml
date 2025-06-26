@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hospital-financial-ai"
+version = "0.1.0"
+description = "Production-ready hospital financial distress prediction and analysis system"
+authors = [
+    {name = "Senior Data Scientist", email = "data@hospital-analysis.com"},
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "plotly>=5.14.0",
+    "scikit-learn>=1.3.0",
+    "xgboost>=1.7.0",
+    "shap>=0.42.0",
+    "transformers>=4.30.0",
+    "accelerate>=0.20.0",
+    "sentencepiece>=0.1.99",
+    "streamlit>=1.25.0",
+    "python-dotenv>=1.0.0",
+    "jupyter>=1.0.0",
+    "openpyxl>=3.1.0",
+    "requests>=2.31.0",
+    "torch>=2.0.0",
+    "datasets>=2.12.0",
+    "kaleido>=0.2.1",
+    "fastparquet",
+    "xlrd",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.3.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.3.0",
+    "pre-commit>=3.3.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/your-username/hospital-financial-ai"
+"Bug Reports" = "https://github.com/your-username/hospital-financial-ai/issues"
+"Source" = "https://github.com/your-username/hospital-financial-ai"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
