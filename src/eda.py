@@ -461,6 +461,214 @@ class HospitalFinancialEDA:
         
         return fig
 
+    def _create_eda_visualizations(self, year: str):
+        """Create comprehensive EDA visualizations and save to files."""
+        logger.info(f"📊 Creating comprehensive EDA visualizations for {year}...")
+        
+        # Initialize visualization engine
+        from .visualizations import HospitalVisualizationEngine
+        viz_engine = HospitalVisualizationEngine(self.config)
+        
+        try:
+            # 1. Hospital Size Distribution
+            if 'LICENSED_BED_SIZE' in self.data.columns:
+                logger.info("📈 Creating hospital size distribution...")
+                fig1 = viz_engine.create_distribution_plot(
+                    self.data, 
+                    'LICENSED_BED_SIZE',
+                    title=f"Hospital Size Distribution ({year})",
+                    save_file=f"hospital_size_distribution_{year}.html"
+                )
+            
+            # 2. Geographic Distribution
+            if 'COUNTY_NAME' in self.data.columns:
+                logger.info("🗺️ Creating geographic distribution...")
+                county_counts = self.data['COUNTY_NAME'].value_counts().head(15)
+                
+                fig2 = go.Figure(data=[
+                    go.Bar(x=county_counts.values, y=county_counts.index, 
+                           orientation='h', marker_color=viz_engine.colors['primary'])
+                ])
+                fig2.update_layout(
+                    title=f"Top 15 Counties by Hospital Count ({year})",
+                    xaxis_title="Number of Hospitals",
+                    yaxis_title="County",
+                    height=500
+                )
+                viz_engine._save_chart(fig2, f"geographic_distribution_{year}.html")
+            
+            # 3. Financial Metrics Analysis (if available)
+            if self.metrics_calculator:
+                logger.info("💰 Creating financial metrics visualizations...")
+                metrics_result = self.metrics_calculator.calculate_all_metrics()
+                
+                # Convert dict of Series to DataFrame properly
+                if isinstance(metrics_result, dict) and metrics_result:
+                    # Convert dict of Series to DataFrame (proper way)
+                    metrics_df = pd.DataFrame(metrics_result)
+                    logger.info(f"✅ Converted metrics to DataFrame: {metrics_df.shape}")
+                else:
+                    metrics_df = metrics_result
+                
+                if not metrics_df.empty and len(metrics_df) > 0:
+                    # Operating Margin Distribution
+                    if 'operating_margin' in metrics_df.columns:
+                        fig3 = viz_engine.create_distribution_plot(
+                            metrics_df,
+                            'operating_margin',
+                            title=f"Operating Margin Distribution ({year})",
+                            save_file=f"operating_margin_distribution_{year}.html"
+                        )
+                    
+                    # Financial Health Dashboard
+                    key_metrics = ['operating_margin', 'days_cash_on_hand', 'asset_turnover', 'debt_to_assets']
+                    available_metrics = [m for m in key_metrics if m in metrics_df.columns]
+                    
+                    if available_metrics:
+                        logger.info("📊 Creating financial health dashboard...")
+                        fig4 = self._create_financial_dashboard(metrics_df, available_metrics, year)
+                        viz_engine._save_chart(fig4, f"financial_health_dashboard_{year}.html")
+                else:
+                    logger.warning("⚠️ No financial metrics data available for visualization")
+            
+            # 4. Data Quality Overview
+            logger.info("🔍 Creating data quality overview...")
+            self._create_data_quality_chart(year, viz_engine)
+            
+            # 5. HADR PCL Validation Chart
+            if self.column_analysis:
+                logger.info("🏥 Creating HADR PCL validation chart...")
+                self._create_hadr_validation_chart(year, viz_engine)
+            
+            logger.info(f"✅ EDA visualizations completed for {year}")
+            
+        except Exception as e:
+            logger.error(f"❌ Error creating visualizations for {year}: {e}")
+
+    def _create_financial_dashboard(self, metrics_df: pd.DataFrame, metrics: List[str], year: str) -> go.Figure:
+        """Create financial metrics dashboard subplot."""
+        rows = 2
+        cols = 2
+        fig = make_subplots(
+            rows=rows, cols=cols,
+            subplot_titles=[m.replace('_', ' ').title() for m in metrics[:4]],
+            specs=[[{"secondary_y": False}, {"secondary_y": False}],
+                   [{"secondary_y": False}, {"secondary_y": False}]]
+        )
+        
+        positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
+        colors = [self.colors['primary'], self.colors['secondary'], 
+                 self.colors['accent'], self.colors['success']]
+        
+        for i, metric in enumerate(metrics[:4]):
+            if metric in metrics_df.columns:
+                data = metrics_df[metric].dropna()
+                if len(data) > 0:
+                    row, col = positions[i]
+                    fig.add_trace(
+                        go.Histogram(
+                            x=data, 
+                            name=metric, 
+                            marker_color=colors[i], 
+                            showlegend=False,
+                            nbinsx=20
+                        ),
+                        row=row, col=col
+                    )
+                    logger.debug(f"Added histogram for {metric}: {len(data)} data points")
+                else:
+                    logger.warning(f"No data available for metric: {metric}")
+        
+        fig.update_layout(
+            title_text=f"Financial Metrics Dashboard ({year})",
+            height=600,
+            showlegend=False
+        )
+        
+        return fig
+
+    def _create_data_quality_chart(self, year: str, viz_engine):
+        """Create data quality overview chart."""
+        # Calculate completion rates for key columns
+        key_columns = [
+            'REV_TOT_PT_REV', 'PY_TOT_OP_EXP', 'EQ_UNREST_FND_NET_INCOME',
+            'PY_SP_PURP_FND_OTH_ASSETS', 'CASH_FLOW_SPECIFY_OTH_OP_L102',
+            'PY_SP_PURP_FND_TOT_LIAB_EQ'
+        ]
+        
+        completion_data = []
+        for col in key_columns:
+            if col in self.data.columns:
+                completion_rate = (self.data[col].notna().sum() / len(self.data)) * 100
+                completion_data.append({
+                    'Field': col.replace('_', ' ').title(),
+                    'Completion Rate (%)': completion_rate
+                })
+        
+        if completion_data:
+            completion_df = pd.DataFrame(completion_data)
+            
+            fig = go.Figure(data=[
+                go.Bar(
+                    x=completion_df['Completion Rate (%)'],
+                    y=completion_df['Field'],
+                    orientation='h',
+                    marker_color=viz_engine.colors['success']
+                )
+            ])
+            
+            fig.update_layout(
+                title=f"HADR Field Completion Rates ({year})",
+                xaxis_title="Data Completeness (%)",
+                yaxis_title="HADR Field",
+                height=400
+            )
+            
+            viz_engine._save_chart(fig, f"data_quality_overview_{year}.html")
+
+    def _create_hadr_validation_chart(self, year: str, viz_engine):
+        """Create HADR PCL validation visualization."""
+        if not self.column_analysis or 'pcl_validated_mappings' not in self.column_analysis:
+            return
+        
+        mappings = self.column_analysis['pcl_validated_mappings']
+        
+        # Prepare data for visualization
+        chart_data = []
+        for field, info in mappings.items():
+            chart_data.append({
+                'Field': field.replace('_', ' ').title(),
+                'Status': 'Found' if info['found'] else 'Missing',
+                'Completeness': info.get('completeness_pct', 0) if info['found'] else 0,
+                'PCL_Reference': info['pcl_reference']
+            })
+        
+        if chart_data:
+            chart_df = pd.DataFrame(chart_data)
+            
+            # Create color mapping
+            colors = ['green' if status == 'Found' else 'red' for status in chart_df['Status']]
+            
+            fig = go.Figure(data=[
+                go.Bar(
+                    x=chart_df['Completeness'],
+                    y=chart_df['Field'],
+                    orientation='h',
+                    marker_color=colors,
+                    text=chart_df['PCL_Reference'],
+                    textposition='inside'
+                )
+            ])
+            
+            fig.update_layout(
+                title=f"HADR PCL Field Validation ({year})",
+                xaxis_title="Completeness (%)",
+                yaxis_title="PCL Field",
+                height=400
+            )
+            
+            viz_engine._save_chart(fig, f"hadr_pcl_validation_{year}.html")
+
     def run_single_year_analysis(self, year: str) -> Dict:
         """Run complete EDA for a single fiscal year with HADR column analysis."""
         logger.info(f"🚀 Starting comprehensive analysis for year {year}...")
@@ -475,6 +683,9 @@ class HospitalFinancialEDA:
             
             # Perform HADR column analysis
             hadr_analysis = self.analyze_hadr_columns()
+            
+            # Create comprehensive visualizations
+            self._create_eda_visualizations(year)
             
             # Generate summary and dashboard
             summary = self.generate_summary(year)

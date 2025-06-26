@@ -31,7 +31,7 @@ class HospitalVisualizationEngine:
             config: Configuration object. If None, uses global config.
         """
         self.config = config or get_config()
-        self.output_dir = self.config.eda_charts_dir
+        self.output_dir = self.config.visuals_dir / "eda_charts"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Modern professional color scheme (2024 trends)
@@ -72,13 +72,13 @@ class HospitalVisualizationEngine:
                     'linecolor': self.colors['neutral'],
                     'gridcolor': '#E8E8E8',
                     'tickcolor': self.colors['neutral'],
-                    'titlefont': {'size': 14, 'color': self.colors['text']}
+                    'title': {'font': {'size': 14, 'color': self.colors['text']}}
                 },
                 'yaxis': {
                     'linecolor': self.colors['neutral'],
                     'gridcolor': '#E8E8E8',
                     'tickcolor': self.colors['neutral'],
-                    'titlefont': {'size': 14, 'color': self.colors['text']}
+                    'title': {'font': {'size': 14, 'color': self.colors['text']}}
                 }
             }
         }
