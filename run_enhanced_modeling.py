@@ -1,13 +1,11 @@
 #!/usr/bin/env uv run python
 """
-Enhanced Modeling Pipeline with Time-Series Features
-===================================================
+Enhanced ML Pipeline - Main Modeling Script (Phase 5)
+====================================================
+Complete Phase 5 implementation with ensemble methods, advanced imbalanced 
+data techniques, and comprehensive explainability using 147 enhanced features.
 
-Trains and evaluates XGBoost model using enhanced feature set (147 features)
-including the new time-series volatility, trend, and stability indicators.
-
-Usage:
-    uv run python run_enhanced_modeling.py
+Usage: uv run python run_enhanced_modeling.py
 """
 
 import pandas as pd

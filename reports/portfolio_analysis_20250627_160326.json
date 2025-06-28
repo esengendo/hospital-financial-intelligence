@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "timestamp": "2025-06-27T16:03:26.586593",
+    "hospitals_analyzed": 3,
+    "total_tokens": 785,
+    "total_cost_usd": 0.00046314999999999995,
+    "cost_per_hospital": 0.0001543833333333333,
+    "model": "llama-3.1-8b-instant",
+    "provider": "groq"
+  },
+  "portfolio_metrics": {
+    "average_operating_margin": 475.73654709000203,
+    "average_current_ratio": 1.0,
+    "average_days_cash": -11.43168895594305
+  },
+  "hospital_analyses": [
+    {
+      "hospital_id": "Hospital_1",
+      "financial_metrics": {
+        "operating_margin": 49.91976933402082,
+        "current_ratio": 1.0,
+        "days_cash_on_hand": -94.29506686782915,
+        "total_margin": 49.91976933402082
+      },
+      "ai_analysis": "**Status**: Critical\n\n**Key Strength**: The hospital has achieved an extremely high operating margin, indicating efficient financial management.\n\n**Main Risk**: The hospital is facing a severe liquidity crisis, as evidenced by a negative Days Cash on Hand (-94 days) and a Current Ratio of 1.00, which may indicate an inability to meet short-term obligations.\n\n**Top Recommendation**: Immediately review and revise the hospital's cash flow management strategy to prioritize short-term liquidity and explore potential cost-saving measures to stabilize the financial situation.",
+      "tokens_used": 268,
+      "timestamp": "2025-06-27T16:03:23.695434"
+    },
+    {
+      "hospital_id": "Hospital_2",
+      "financial_metrics": {
+        "operating_margin": -17.407341912487016,
+        "current_ratio": 1.0,
+        "days_cash_on_hand": 30.0,
+        "total_margin": -17.407341912487016
+      },
+      "ai_analysis": "**Status**: Critical\n\n**Key Strength**: The hospital has a favorable current ratio of 1.00, indicating it can meet its short-term obligations.\n\n**Main Risk**: The operating and total margin of -1740.73% signify significant financial losses, which may lead to liquidity issues and potential closure if not addressed.\n\n**Top Recommendation**: Conduct an immediate comprehensive financial review to identify areas for cost reduction, revenue enhancement, and potential restructuring to prevent further financial deterioration.",
+      "tokens_used": 259,
+      "timestamp": "2025-06-27T16:03:24.914017"
+    },
+    {
+      "hospital_id": "Hospital_3",
+      "financial_metrics": {
+        "operating_margin": 1394.6972138484723,
+        "current_ratio": 1.0,
+        "days_cash_on_hand": 30.0,
+        "total_margin": 1394.6972138484723
+      },
+      "ai_analysis": "**Status: Critical**\n\n**Key Strength:** The hospital has an impressive 30 days of cash on hand, indicating a stable liquidity position.\n\n**Main Risk:** The operating margin and total margin are both extremely high at 139,469.72%, suggesting potential overcharging or inefficiencies in revenue management.\n\n**Top Recommendation:** Conduct a thorough review of the hospital's pricing strategy and revenue cycle processes to identify areas for optimization and ensure compliance with industry standards and regulations.",
+      "tokens_used": 258,
+      "timestamp": "2025-06-27T16:03:26.079157"
+    }
+  ]
+}

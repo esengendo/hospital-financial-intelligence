@@ -669,6 +669,587 @@ class HospitalFinancialEDA:
             
             viz_engine._save_chart(fig, f"hadr_pcl_validation_{year}.html")
 
+    def analyze_payer_mix(self) -> Dict:
+        """
+        Phase 3: Payer Mix Analysis
+        Analyze hospital revenue composition by payer type.
+        """
+        logger.info("💰 Analyzing payer mix composition...")
+        
+        payer_fields = [
+            'MEDICARE_REV', 'MEDICAID_REV', 'PRIVATE_INS_REV', 
+            'SELF_PAY_REV', 'OTHER_PAYER_REV'
+        ]
+        
+        # Look for payer-related columns in the dataset
+        available_payer_fields = []
+        for field in payer_fields:
+            possible_names = [
+                field, f'REV_{field}', f'PT_{field}', f'{field}_PATIENT',
+                f'NET_{field}', f'GROSS_{field}'
+            ]
+            for name in possible_names:
+                if name in self.data.columns:
+                    available_payer_fields.append((field, name))
+                    break
+        
+        # Calculate total revenue for normalization
+        total_rev_field = None
+        for field in ['REV_TOT_PT_REV', 'TOTAL_PATIENT_REV', 'NET_PT_REV']:
+            if field in self.data.columns:
+                total_rev_field = field
+                break
+        
+        payer_analysis = {
+            'available_payer_fields': len(available_payer_fields),
+            'total_revenue_field': total_rev_field,
+            'payer_metrics': {},
+            'diversity_scores': {},
+            'government_exposure': {}
+        }
+        
+        if available_payer_fields and total_rev_field:
+            total_revenue = self.data[total_rev_field].fillna(0)
+            
+            for standard_name, actual_field in available_payer_fields:
+                payer_revenue = self.data[actual_field].fillna(0)
+                
+                # Calculate payer dependency ratio
+                payer_dependency = np.where(
+                    total_revenue > 0, 
+                    payer_revenue / total_revenue, 
+                    0
+                )
+                
+                payer_analysis['payer_metrics'][standard_name] = {
+                    'mean_dependency': float(np.mean(payer_dependency)),
+                    'median_dependency': float(np.median(payer_dependency)),
+                    'std_dependency': float(np.std(payer_dependency)),
+                    'hospitals_with_data': int(np.sum(payer_revenue > 0))
+                }
+            
+            # Calculate payer diversity index (1 - Herfindahl Index)
+            if len(available_payer_fields) >= 2:
+                payer_revenues = np.array([
+                    self.data[field].fillna(0) for _, field in available_payer_fields
+                ]).T
+                
+                # Calculate diversity index for each hospital
+                diversity_scores = []
+                for hospital_revenues in payer_revenues:
+                    total = np.sum(hospital_revenues)
+                    if total > 0:
+                        proportions = hospital_revenues / total
+                        herfindahl = np.sum(proportions ** 2)
+                        diversity = 1 - herfindahl
+                        diversity_scores.append(diversity)
+                
+                if diversity_scores:
+                    payer_analysis['diversity_scores'] = {
+                        'mean_diversity': float(np.mean(diversity_scores)),
+                        'median_diversity': float(np.median(diversity_scores)),
+                        'hospitals_analyzed': len(diversity_scores)
+                    }
+            
+            # Government exposure (Medicare + Medicaid)
+            gov_fields = [(name, field) for name, field in available_payer_fields 
+                         if 'MEDICARE' in name or 'MEDICAID' in name]
+            
+            if gov_fields:
+                gov_revenue = sum(self.data[field].fillna(0) for _, field in gov_fields)
+                gov_exposure = np.where(total_revenue > 0, gov_revenue / total_revenue, 0)
+                
+                payer_analysis['government_exposure'] = {
+                    'mean_exposure': float(np.mean(gov_exposure)),
+                    'median_exposure': float(np.median(gov_exposure)),
+                    'high_exposure_hospitals': int(np.sum(gov_exposure > 0.6))
+                }
+        
+        logger.info(f"✅ Payer mix analysis completed: {len(available_payer_fields)} payer types found")
+        return payer_analysis
+
+    def analyze_market_competition(self) -> Dict:
+        """
+        Phase 3: Market Competition Indicators
+        Analyze hospital market position and competitive landscape.
+        """
+        logger.info("🏆 Analyzing market competition indicators...")
+        
+        market_analysis = {
+            'geographic_concentration': {},
+            'size_distribution': {},
+            'service_concentration': {},
+            'competitive_indicators': {}
+        }
+        
+        # Geographic concentration analysis
+        if 'COUNTY_NAME' in self.data.columns:
+            county_counts = self.data['COUNTY_NAME'].value_counts()
+            
+            # Calculate market concentration (HHI) by county
+            total_hospitals = len(self.data)
+            county_shares = county_counts / total_hospitals
+            geographic_hhi = np.sum(county_shares ** 2)
+            
+            market_analysis['geographic_concentration'] = {
+                'total_counties': len(county_counts),
+                'herfindahl_index': float(geographic_hhi),
+                'top_county_share': float(county_shares.iloc[0]),
+                'top_5_counties_share': float(county_shares.head(5).sum()),
+                'counties_with_single_hospital': int(np.sum(county_counts == 1))
+            }
+        
+        # Hospital size distribution analysis
+        size_fields = ['LICENSED_BED_SIZE', 'STAFFED_BEDS', 'TOTAL_BEDS']
+        size_field = None
+        for field in size_fields:
+            if field in self.data.columns:
+                size_field = field
+                break
+        
+        if size_field:
+            sizes = self.data[size_field].dropna()
+            if len(sizes) > 0:
+                # Define size categories
+                size_categories = pd.cut(
+                    sizes, 
+                    bins=[0, 25, 100, 300, 1000, np.inf],
+                    labels=['Very Small', 'Small', 'Medium', 'Large', 'Very Large']
+                )
+                size_dist = size_categories.value_counts(normalize=True)
+                
+                market_analysis['size_distribution'] = {
+                    'size_categories': size_dist.to_dict(),
+                    'mean_size': float(sizes.mean()),
+                    'median_size': float(sizes.median()),
+                    'size_concentration_hhi': float(np.sum((size_dist) ** 2))
+                }
+        
+        # Service line concentration (if service data available)
+        service_fields = [col for col in self.data.columns 
+                         if any(service in col.upper() for service in 
+                               ['SURGERY', 'ICU', 'EMERGENCY', 'MATERNITY', 'CARDIAC'])]
+        
+        if service_fields:
+            market_analysis['service_concentration'] = {
+                'service_fields_available': len(service_fields),
+                'hospitals_with_service_data': int(
+                    self.data[service_fields].notna().any(axis=1).sum()
+                )
+            }
+        
+        # Competitive position indicators
+        if 'REV_TOT_PT_REV' in self.data.columns and 'COUNTY_NAME' in self.data.columns:
+            revenue = self.data['REV_TOT_PT_REV'].fillna(0)
+            
+            # Calculate market share within county for each hospital
+            county_market_shares = []
+            for county in self.data['COUNTY_NAME'].unique():
+                if pd.notna(county):
+                    county_data = self.data[self.data['COUNTY_NAME'] == county]
+                    county_revenue = county_data['REV_TOT_PT_REV'].fillna(0)
+                    total_county_revenue = county_revenue.sum()
+                    
+                    if total_county_revenue > 0:
+                        county_shares = county_revenue / total_county_revenue
+                        county_market_shares.extend(county_shares.tolist())
+            
+            if county_market_shares:
+                market_analysis['competitive_indicators'] = {
+                    'mean_market_share': float(np.mean(county_market_shares)),
+                    'median_market_share': float(np.median(county_market_shares)),
+                    'market_leaders': int(np.sum(np.array(county_market_shares) > 0.3)),
+                    'competitive_markets': int(np.sum(np.array(county_market_shares) < 0.2))
+                }
+        
+        logger.info("✅ Market competition analysis completed")
+        return market_analysis
+
+    def analyze_financial_health_comprehensive(self) -> Dict:
+        """
+        Phase 3: Comprehensive Financial Health Analysis
+        Advanced financial health assessment using multiple dimensions.
+        """
+        logger.info("💊 Analyzing comprehensive financial health...")
+        
+        health_analysis = {
+            'financial_stability_scores': {},
+            'liquidity_health': {},
+            'profitability_health': {},
+            'efficiency_health': {},
+            'leverage_health': {},
+            'composite_health_score': {},
+            'health_benchmarks': {},
+            'distress_indicators': {}
+        }
+        
+        if not self.metrics_calculator:
+            health_analysis['status'] = 'No metrics calculator available'
+            return health_analysis
+        
+        try:
+            # Calculate all financial metrics
+            metrics = self.metrics_calculator.calculate_all_metrics()
+            if isinstance(metrics, dict) and metrics:
+                metrics_df = pd.DataFrame(metrics)
+            else:
+                metrics_df = metrics
+            
+            if metrics_df.empty:
+                health_analysis['status'] = 'No financial metrics available'
+                return health_analysis
+            
+            # 1. Liquidity Health Assessment
+            liquidity_metrics = ['current_ratio', 'quick_ratio', 'days_cash_on_hand']
+            available_liquidity = [m for m in liquidity_metrics if m in metrics_df.columns]
+            
+            if available_liquidity:
+                liquidity_scores = []
+                for metric in available_liquidity:
+                    data = metrics_df[metric].dropna()
+                    if len(data) > 0:
+                        # Define healthy thresholds
+                        if metric == 'current_ratio':
+                            healthy_threshold = 1.5  # Current ratio > 1.5 is healthy
+                            score = (data >= healthy_threshold).mean()
+                        elif metric == 'quick_ratio':
+                            healthy_threshold = 1.0  # Quick ratio > 1.0 is healthy
+                            score = (data >= healthy_threshold).mean()
+                        elif metric == 'days_cash_on_hand':
+                            healthy_threshold = 90  # 90+ days cash is healthy
+                            score = (data >= healthy_threshold).mean()
+                        else:
+                            score = 0.5  # neutral score for unknown metrics
+                        
+                        liquidity_scores.append(score)
+                        health_analysis['liquidity_health'][metric] = {
+                            'healthy_percentage': float(score * 100),
+                            'mean_value': float(data.mean()),
+                            'median_value': float(data.median()),
+                            'threshold': healthy_threshold
+                        }
+                
+                health_analysis['liquidity_health']['overall_score'] = float(np.mean(liquidity_scores)) if liquidity_scores else 0.0
+            
+            # 2. Profitability Health Assessment
+            profitability_metrics = ['operating_margin', 'total_margin', 'return_on_assets', 'return_on_equity']
+            available_profitability = [m for m in profitability_metrics if m in metrics_df.columns]
+            
+            if available_profitability:
+                profitability_scores = []
+                for metric in available_profitability:
+                    data = metrics_df[metric].dropna()
+                    if len(data) > 0:
+                        # Define healthy thresholds
+                        if 'margin' in metric:
+                            healthy_threshold = 0.02  # 2% margin is healthy
+                        elif 'return' in metric:
+                            healthy_threshold = 0.05  # 5% return is healthy
+                        else:
+                            healthy_threshold = 0.0
+                        
+                        score = (data >= healthy_threshold).mean()
+                        profitability_scores.append(score)
+                        health_analysis['profitability_health'][metric] = {
+                            'healthy_percentage': float(score * 100),
+                            'mean_value': float(data.mean()),
+                            'median_value': float(data.median()),
+                            'threshold': healthy_threshold
+                        }
+                
+                health_analysis['profitability_health']['overall_score'] = float(np.mean(profitability_scores)) if profitability_scores else 0.0
+            
+            # 3. Efficiency Health Assessment
+            efficiency_metrics = ['asset_turnover', 'receivables_turnover']
+            available_efficiency = [m for m in efficiency_metrics if m in metrics_df.columns]
+            
+            if available_efficiency:
+                efficiency_scores = []
+                for metric in available_efficiency:
+                    data = metrics_df[metric].dropna()
+                    if len(data) > 0:
+                        # Higher turnover is generally better
+                        healthy_threshold = data.quantile(0.6)  # Above 60th percentile is healthy
+                        score = (data >= healthy_threshold).mean()
+                        efficiency_scores.append(score)
+                        health_analysis['efficiency_health'][metric] = {
+                            'healthy_percentage': float(score * 100),
+                            'mean_value': float(data.mean()),
+                            'median_value': float(data.median()),
+                            'threshold': float(healthy_threshold)
+                        }
+                
+                health_analysis['efficiency_health']['overall_score'] = float(np.mean(efficiency_scores)) if efficiency_scores else 0.0
+            
+            # 4. Leverage Health Assessment
+            leverage_metrics = ['debt_to_equity', 'debt_to_assets', 'times_interest_earned']
+            available_leverage = [m for m in leverage_metrics if m in metrics_df.columns]
+            
+            if available_leverage:
+                leverage_scores = []
+                for metric in available_leverage:
+                    data = metrics_df[metric].dropna()
+                    if len(data) > 0:
+                        if 'debt_to' in metric:
+                            # Lower debt ratios are healthier
+                            healthy_threshold = 0.5  # Debt ratio < 50% is healthy
+                            score = (data <= healthy_threshold).mean()
+                        elif 'times_interest' in metric:
+                            # Higher interest coverage is healthier
+                            healthy_threshold = 2.5  # Coverage > 2.5x is healthy
+                            score = (data >= healthy_threshold).mean()
+                        else:
+                            score = 0.5
+                        
+                        leverage_scores.append(score)
+                        health_analysis['leverage_health'][metric] = {
+                            'healthy_percentage': float(score * 100),
+                            'mean_value': float(data.mean()),
+                            'median_value': float(data.median()),
+                            'threshold': healthy_threshold
+                        }
+                
+                health_analysis['leverage_health']['overall_score'] = float(np.mean(leverage_scores)) if leverage_scores else 0.0
+            
+            # 5. Composite Health Score
+            category_scores = []
+            for category in ['liquidity_health', 'profitability_health', 'efficiency_health', 'leverage_health']:
+                if category in health_analysis and 'overall_score' in health_analysis[category]:
+                    category_scores.append(health_analysis[category]['overall_score'])
+            
+            if category_scores:
+                composite_score = np.mean(category_scores)
+                health_analysis['composite_health_score'] = {
+                    'overall_score': float(composite_score),
+                    'grade': self._get_health_grade(composite_score),
+                    'categories_included': len(category_scores),
+                    'interpretation': self._interpret_health_score(composite_score)
+                }
+            
+            # 6. Health Benchmarks
+            health_analysis['health_benchmarks'] = {
+                'excellent': 'Score ≥ 0.8 (80%+ hospitals healthy in all categories)',
+                'good': 'Score ≥ 0.6 (60%+ hospitals healthy in most categories)',
+                'fair': 'Score ≥ 0.4 (40%+ hospitals healthy in some categories)',
+                'poor': 'Score < 0.4 (Less than 40% hospitals healthy)'
+            }
+            
+            # 7. Financial Distress Indicators
+            try:
+                from .financial_metrics import identify_financial_distress
+                distress_scores = identify_financial_distress(self.data)
+                if len(distress_scores) > 0:
+                    health_analysis['distress_indicators'] = {
+                        'hospitals_analyzed': len(distress_scores),
+                        'low_risk_count': int(np.sum(distress_scores == 0)),
+                        'moderate_risk_count': int(np.sum(distress_scores == 1)),
+                        'high_risk_count': int(np.sum(distress_scores == 2)),
+                        'critical_risk_count': int(np.sum(distress_scores == 3)),
+                        'average_risk_score': float(distress_scores.mean())
+                    }
+            except Exception as e:
+                logger.warning(f"Could not calculate distress indicators: {e}")
+        
+        except Exception as e:
+            logger.warning(f"Error in comprehensive financial health analysis: {e}")
+            health_analysis['error'] = str(e)
+        
+        logger.info("✅ Comprehensive financial health analysis completed")
+        return health_analysis
+    
+    def _get_health_grade(self, score: float) -> str:
+        """Convert health score to letter grade."""
+        if score >= 0.8:
+            return 'A (Excellent)'
+        elif score >= 0.6:
+            return 'B (Good)'
+        elif score >= 0.4:
+            return 'C (Fair)'
+        else:
+            return 'D (Poor)'
+    
+    def _interpret_health_score(self, score: float) -> str:
+        """Provide interpretation of health score."""
+        if score >= 0.8:
+            return 'Strong financial health across all categories'
+        elif score >= 0.6:
+            return 'Generally healthy with some areas for improvement'
+        elif score >= 0.4:
+            return 'Mixed financial health requiring attention'
+        else:
+            return 'Financial health concerns requiring immediate action'
+
+    def analyze_quality_financial_integration(self) -> Dict:
+        """
+        Phase 3: Quality-Financial Integration
+        Analyze relationships between quality indicators and financial performance.
+        """
+        logger.info("⭐ Analyzing quality-financial integration...")
+        
+        quality_analysis = {
+            'quality_indicators_available': [],
+            'financial_quality_correlations': {},
+            'efficiency_metrics': {},
+            'risk_indicators': {}
+        }
+        
+        # Look for quality-related fields
+        quality_fields = []
+        quality_patterns = [
+            'QUALITY', 'RATING', 'SCORE', 'VIOLATION', 'COMPLIANCE',
+            'SAFETY', 'SATISFACTION', 'READMISSION', 'MORTALITY'
+        ]
+        
+        for col in self.data.columns:
+            if any(pattern in col.upper() for pattern in quality_patterns):
+                quality_fields.append(col)
+        
+        quality_analysis['quality_indicators_available'] = quality_fields
+        
+        # Financial efficiency metrics
+        if self.metrics_calculator:
+            try:
+                metrics = self.metrics_calculator.calculate_all_metrics()
+                if isinstance(metrics, dict) and metrics:
+                    metrics_df = pd.DataFrame(metrics)
+                else:
+                    metrics_df = metrics
+                
+                if not metrics_df.empty:
+                    # Cost efficiency indicators
+                    if 'asset_turnover' in metrics_df.columns:
+                        asset_turnover = metrics_df['asset_turnover'].dropna()
+                        if len(asset_turnover) > 0:
+                            quality_analysis['efficiency_metrics']['asset_turnover'] = {
+                                'mean': float(asset_turnover.mean()),
+                                'median': float(asset_turnover.median()),
+                                'high_efficiency_hospitals': int(np.sum(asset_turnover > asset_turnover.quantile(0.75)))
+                            }
+                    
+                    # Operating efficiency
+                    if 'operating_margin' in metrics_df.columns:
+                        operating_margin = metrics_df['operating_margin'].dropna()
+                        if len(operating_margin) > 0:
+                            quality_analysis['efficiency_metrics']['operating_efficiency'] = {
+                                'mean_margin': float(operating_margin.mean()),
+                                'profitable_hospitals': int(np.sum(operating_margin > 0)),
+                                'high_performers': int(np.sum(operating_margin > 0.05))
+                            }
+            except Exception as e:
+                logger.warning(f"Could not calculate efficiency metrics: {e}")
+        
+        # Financial risk indicators
+        risk_fields = [col for col in self.data.columns 
+                      if any(risk in col.upper() for risk in 
+                            ['DEBT', 'LIABILITY', 'LOSS', 'DEFICIT'])]
+        
+        if risk_fields:
+            quality_analysis['risk_indicators'] = {
+                'risk_fields_available': len(risk_fields),
+                'hospitals_with_risk_data': int(
+                    self.data[risk_fields].notna().any(axis=1).sum()
+                )
+            }
+        
+        # Quality-financial correlations (if quality data available)
+        if quality_fields and self.metrics_calculator:
+            try:
+                # Calculate correlation between quality metrics and financial performance
+                correlations = {}
+                financial_metrics = ['operating_margin', 'asset_turnover', 'debt_to_assets']
+                
+                for quality_field in quality_fields[:3]:  # Limit to first 3 for performance
+                    quality_data = self.data[quality_field].dropna()
+                    if len(quality_data) > 10:  # Need sufficient data
+                        for fin_metric in financial_metrics:
+                            if hasattr(self.metrics_calculator, f'calculate_{fin_metric}'):
+                                try:
+                                    fin_data = getattr(self.metrics_calculator, f'calculate_{fin_metric}')()
+                                    if len(fin_data) > 0:
+                                        # Align data
+                                        common_index = quality_data.index.intersection(fin_data.index)
+                                        if len(common_index) > 10:
+                                            correlation = np.corrcoef(
+                                                quality_data.loc[common_index],
+                                                fin_data.loc[common_index]
+                                            )[0, 1]
+                                            
+                                            if not np.isnan(correlation):
+                                                correlations[f"{quality_field}_{fin_metric}"] = float(correlation)
+                                except Exception:
+                                    continue
+                
+                quality_analysis['financial_quality_correlations'] = correlations
+            except Exception as e:
+                logger.warning(f"Could not calculate quality-financial correlations: {e}")
+        
+        logger.info(f"✅ Quality-financial integration analysis completed: {len(quality_fields)} quality indicators found")
+        return quality_analysis
+
+    def run_phase3_healthcare_analysis(self) -> Dict:
+        """
+        Execute complete Phase 3 Healthcare-Specific Enhancement Analysis.
+        This method runs all Phase 3 components from the project plan.
+        """
+        logger.info("🏥 Starting Phase 3 Healthcare-Specific Enhancement Analysis...")
+        
+        phase3_results = {
+            'analysis_timestamp': datetime.now().isoformat(),
+            'phase3_components': {
+                'payer_mix_analysis': {},
+                'market_competition_indicators': {},
+                'quality_financial_integration': {}
+            },
+            'phase3_summary': {}
+        }
+        
+        try:
+            # 1. Comprehensive Financial Health Analysis
+            logger.info("💊 Running Comprehensive Financial Health Analysis...")
+            financial_health_analysis = self.analyze_financial_health_comprehensive()
+            phase3_results['phase3_components']['financial_health_analysis'] = financial_health_analysis
+            
+            # 2. Payer Mix Analysis
+            logger.info("📊 Running Payer Mix Analysis...")
+            payer_analysis = self.analyze_payer_mix()
+            phase3_results['phase3_components']['payer_mix_analysis'] = payer_analysis
+            
+            # 3. Market Competition Indicators
+            logger.info("🏆 Running Market Competition Analysis...")
+            market_analysis = self.analyze_market_competition()
+            phase3_results['phase3_components']['market_competition_indicators'] = market_analysis
+            
+            # 4. Quality-Financial Integration
+            logger.info("⭐ Running Quality-Financial Integration Analysis...")
+            quality_analysis = self.analyze_quality_financial_integration()
+            phase3_results['phase3_components']['quality_financial_integration'] = quality_analysis
+            
+            # Generate Phase 3 summary
+            phase3_results['phase3_summary'] = {
+                'financial_health_score': financial_health_analysis.get('composite_health_score', {}).get('overall_score', 0),
+                'financial_health_grade': financial_health_analysis.get('composite_health_score', {}).get('grade', 'N/A'),
+                'payer_fields_found': payer_analysis.get('available_payer_fields', 0),
+                'market_counties_analyzed': market_analysis.get('geographic_concentration', {}).get('total_counties', 0),
+                'quality_indicators_found': len(quality_analysis.get('quality_indicators_available', [])),
+                'efficiency_metrics_calculated': len(quality_analysis.get('efficiency_metrics', {})),
+                'phase3_completion_status': 'completed'
+            }
+            
+            logger.info("✅ Phase 3 Healthcare-Specific Enhancement Analysis completed successfully")
+            logger.info(f"   💊 Financial Health: {phase3_results['phase3_summary']['financial_health_grade']} ({phase3_results['phase3_summary']['financial_health_score']:.3f})")
+            logger.info(f"   💰 Payer fields: {phase3_results['phase3_summary']['payer_fields_found']}")
+            logger.info(f"   🌎 Counties: {phase3_results['phase3_summary']['market_counties_analyzed']}")
+            logger.info(f"   ⭐ Quality indicators: {phase3_results['phase3_summary']['quality_indicators_found']}")
+            
+        except Exception as e:
+            logger.error(f"❌ Phase 3 analysis failed: {e}")
+            phase3_results['phase3_summary'] = {
+                'phase3_completion_status': 'failed',
+                'error_message': str(e)
+            }
+        
+        return phase3_results
+
     def run_single_year_analysis(self, year: str) -> Dict:
         """Run complete EDA for a single fiscal year with HADR column analysis."""
         logger.info(f"🚀 Starting comprehensive analysis for year {year}...")
@@ -683,6 +1264,9 @@ class HospitalFinancialEDA:
             
             # Perform HADR column analysis
             hadr_analysis = self.analyze_hadr_columns()
+            
+            # Phase 3: Run Healthcare-Specific Enhancement Analysis
+            phase3_analysis = self.run_phase3_healthcare_analysis()
             
             # Create comprehensive visualizations
             self._create_eda_visualizations(year)
@@ -706,7 +1290,8 @@ class HospitalFinancialEDA:
                 'numeric_columns': hadr_analysis['dataset_overview']['numeric_columns'],
                 'financial_health': summary['financial_health'],
                 'risk_assessment': summary['risk_assessment'],
-                'column_analysis': hadr_analysis
+                'column_analysis': hadr_analysis,
+                'phase3_healthcare_analysis': phase3_analysis
             }
             
             logger.info(f"✅ Year {year} analysis completed:")
@@ -734,6 +1319,9 @@ class HospitalFinancialEDA:
         # Perform HADR analysis
         hadr_analysis = self.analyze_hadr_columns()
         
+        # Phase 3: Run Healthcare-Specific Enhancement Analysis
+        phase3_analysis = self.run_phase3_healthcare_analysis()
+        
         # Generate components
         summary = self.generate_summary()
         dashboard = self.create_dashboard()
@@ -745,6 +1333,7 @@ class HospitalFinancialEDA:
         results = {
             'summary': summary,
             'hadr_analysis': hadr_analysis,
+            'phase3_healthcare_analysis': phase3_analysis,
             'metrics_calculated': len(financial_metrics),
             'records_analyzed': len(self.data),
             'data_quality_score': summary['overview']['data_quality'],
@@ -755,4 +1344,7 @@ class HospitalFinancialEDA:
         }
         
         logger.info("✅ Analysis completed successfully")
+        logger.info(f"   📊 Phase 3 Payer Fields: {phase3_analysis['phase3_summary'].get('payer_fields_found', 0)}")
+        logger.info(f"   🌎 Phase 3 Counties: {phase3_analysis['phase3_summary'].get('market_counties_analyzed', 0)}")
+        logger.info(f"   ⭐ Phase 3 Quality Indicators: {phase3_analysis['phase3_summary'].get('quality_indicators_found', 0)}")
         return results 

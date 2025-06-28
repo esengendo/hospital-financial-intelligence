@@ -1,25 +1,11 @@
 #!/usr/bin/env uv run python
 """
-Enhanced Time-Series Feature Engineering
-========================================
+Enhanced Time-Series Feature Engineering - Class Module
+======================================================
+Provides EnhancedTimeSeriesFeatures class for generating 114 enhanced time-series 
+features including rolling averages, volatility measures, and trend indicators.
 
-Based on research findings, this script improves our time-series features to increase
-their predictive power while working with the existing successful column mappings.
-
-Key Improvements:
-1. Multi-year trends (2-year, 3-year rolling averages)
-2. Volatility and stability measures
-3. Trend classification (improving/declining/stable)
-4. Momentum indicators
-5. Industry percentile rankings
-
-Research Sources:
-- Healthcare financial distress literature shows trend stability is more predictive than YoY changes
-- Financial volatility is a key distress indicator
-- Multi-year patterns capture long-term deterioration better than single-year changes
-
-Usage:
-    uv run python enhanced_time_series_features.py
+Note: Use run_enhanced_feature_engineering.py to execute.
 """
 
 import pandas as pd
@@ -50,12 +36,7 @@ class TimeSeriesConfig:
             self.volatility_windows = [3, 5]  # 3-year and 5-year volatility
 
 class EnhancedTimeSeriesFeatures:
-    """
-    Enhanced time-series feature engineering focused on financial stability and trends.
-    
-    This class works with our existing successful features (operating_margin, 
-    times_interest_earned, etc.) to create more predictive time-series indicators.
-    """
+    """Enhanced time-series feature engineering for financial stability and trends."""
     
     def __init__(self, config: TimeSeriesConfig = None):
         self.config = config or TimeSeriesConfig()

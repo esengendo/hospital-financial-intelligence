@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-27T15:58:33.869530",
+  "hospital_data": {
+    "hospital_name": "Regional Medical Center",
+    "operating_margin": -0.03,
+    "days_cash_on_hand": 42,
+    "current_ratio": 1.6,
+    "total_margin": -0.01
+  },
+  "analysis": "**Financial Health Assessment:**\nThe Regional Medical Center is experiencing financial difficulties. The negative operating margin (-3.0%) and total margin (-1.0%) indicate that the hospital is struggling to cover its expenses. Although it has a moderate current ratio (1.6), ensuring it can meet its short-term obligations, the Days Cash on Hand (42 days) is relatively low, suggesting liquidity concerns.\n\n**Key Risk Factors:**\n\n1. **Negative Operating Margin**: Indicates inefficient operations, potentially due to high labor or supply costs, which may negatively impact patient volumes or revenue.\n2. **Low Days Cash on Hand**: Increases the risk of liquidity shortages, making it challenging to meet operational expenses.\n\n**Recommendations:**\n\n1. **Operational Efficiency Analysis**: Conduct a comprehensive review of hospital operations to identify areas for cost reduction, process improvements, and potential revenue enhancements.\n2. **Cash Flow Management**: Implement strategies to improve liquidity, such as reducing accounts receivable days, optimizing inventory management, and exploring alternative funding sources to minimize liquidity risks.",
+  "tokens_used": 337,
+  "provider": "groq",
+  "model": "llama-3.1-8b-instant"
+}

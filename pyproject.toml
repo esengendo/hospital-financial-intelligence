@@ -47,6 +47,14 @@ dependencies = [
     "fuzzywuzzy>=0.18.0",
     "python-Levenshtein>=0.20.0",
     "imbalanced-learn>=0.12.4",
+    # LLM Integration Dependencies
+    "transformers>=4.44.0",
+    "torch>=2.1.0",
+    "accelerate>=0.24.0",
+    "bitsandbytes>=0.41.0",  # For quantization
+    "sentencepiece>=0.1.99",  # For tokenization
+    "protobuf>=4.21.0",
+    "huggingface-hub>=0.17.0"
 ]
 
 [project.optional-dependencies]

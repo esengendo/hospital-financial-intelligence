@@ -126,6 +126,23 @@ class Config:
   Visuals: {self.visuals_dir}
   Models: {self.models_dir}"""
 
+    # LLM Integration Configuration
+    LLM_MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"  # Development model
+    LLM_MODEL_NAME_PROD = "meta-llama/Llama-3.3-70B-Instruct"  # Production model
+    LLM_USE_QUANTIZATION = True
+    LLM_QUANTIZATION_BITS = 4
+    LLM_MAX_NEW_TOKENS = 512
+    LLM_TEMPERATURE = 0.7
+    LLM_TOP_P = 0.9
+    LLM_DO_SAMPLE = True
+    LLM_CACHE_DIR = "./models/llm_cache"
+    LLM_BATCH_SIZE = 4
+    
+    # LLM Output Configuration
+    LLM_OUTPUT_FORMATS = ["markdown", "html", "json", "text"]
+    LLM_REPORTS_DIR = "./reports/llm_generated"
+    LLM_ENABLE_STREAMING = False  # Set to True for real-time generation
+
 
 # Global configuration instance
 _config: Optional[Config] = None

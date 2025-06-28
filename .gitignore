@@ -43,3 +43,5 @@ htmlcov/
 # Environment files
 .env
 .env.local
+# Environment variables (contains API keys)
+.env

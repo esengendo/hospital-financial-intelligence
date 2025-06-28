@@ -1,0 +1,24 @@
+{
+  "hospital": {
+    "hospital_id": "DEMO_001",
+    "hospital_name": "General Medical Center",
+    "location": "Austin, TX",
+    "year": 2023,
+    "financial_metrics": {
+      "operating_margin": -0.05,
+      "total_margin": -0.02,
+      "days_cash_on_hand": 45.0,
+      "current_ratio": 1.8,
+      "debt_to_equity": 0.65,
+      "return_on_assets": 0.02
+    },
+    "risk_prediction": {
+      "risk_score": 0.78,
+      "risk_category": "High Risk",
+      "probability_distress": 0.78
+    }
+  },
+  "analysis": "# Financial Summary: General Medical Center\n\n## Executive Overview\nGeneral Medical Center shows concerning financial indicators requiring immediate attention.\n\n## Key Metrics Analysis\n- **Operating Margin**: -5.0% - Below industry benchmark\n- **Cash Position**: 45 days - Below recommended 60-day minimum\n- **Risk Score**: 78.0% - High risk classification\n\n## Strategic Recommendations\n1. **Immediate Actions**: Revenue cycle optimization, cost containment\n2. **Medium-term**: Staffing efficiency review, supply chain optimization\n3. **Long-term**: Strategic partnerships, service line analysis\n\n## Financial Impact Projections\n- **Potential Savings**: $1.5M - $2.5M annually\n- **Implementation Cost**: $500K - $750K\n- **ROI Timeline**: 6-9 months\n\n*Generated using AI-powered financial analysis on 2025-06-27*",
+  "generated": "2025-06-27T15:51:49.229529",
+  "provider": "mock_demo"
+}
