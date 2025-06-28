@@ -16,12 +16,28 @@ from pathlib import Path
 import sys
 import os
 import glob
+import requests
+from dotenv import load_dotenv
+from typing import Dict
+from datetime import datetime
 
 # Add src to path for imports
 sys.path.append('src')
 
-# Import hospital name lookup utility
-from hospital_name_lookup import get_hospital_name, load_hospital_mapping, get_hospital_mapping_info
+# Import hospital name lookup utility (with error handling)
+try:
+    from hospital_name_lookup import get_hospital_name, load_hospital_mapping, get_hospital_mapping_info
+except ImportError:
+    # Fallback functions if hospital_name_lookup is not available
+    def get_hospital_name(oshpd_id):
+        return f"Hospital_{oshpd_id}"
+    def load_hospital_mapping():
+        return {}
+    def get_hospital_mapping_info():
+        return {"total_hospitals": 0, "mapped_hospitals": 0}
+
+# Load environment variables
+load_dotenv()
 
 # Configure page
 st.set_page_config(
@@ -34,22 +50,22 @@ st.set_page_config(
 # Modern CSS styling inspired by shadcn/ui
 st.markdown("""
 <style>
-    /* Import Inter font and Lucide icons */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    @import url('https://unpkg.com/lucide@latest/dist/umd/lucide.js');
+    /* Import Inter font for professional business typography */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    /* Global styles - Clean white background */
+    /* Global styles - Clean white background with business focus */
     .stApp {
         background-color: #ffffff;
-        color: #0f172a;
+        color: #1e293b;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     
     .main .block-container {
-        padding-top: 2rem;
+        padding-top: 1rem;
         padding-bottom: 2rem;
-        max-width: 1200px;
+        max-width: 1400px;
         background-color: #ffffff;
+        font-family: 'Inter', sans-serif;
     }
     
     /* Remove default Streamlit styling */
@@ -76,35 +92,33 @@ st.markdown("""
         color: #0f172a !important;
     }
     
-    /* Improve text readability */
+    /* Professional business typography */
     .stMarkdown, .stText, p, div, span {
-        color: #0f172a !important;
-        font-family: 'Inter', sans-serif;
+        color: #1e293b !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 400;
+        line-height: 1.6;
     }
     
-    /* Headings with better contrast */
+    /* Business-focused headings */
     h1, h2, h3, h4, h5, h6 {
         color: #0f172a !important;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.025em !important;
+        line-height: 1.2 !important;
     }
     
-    /* Typography with improved contrast */
-    .main-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 700;
+    /* Section headers with professional styling */
+    .section-header {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 1.5rem !important;
+        font-weight: 600 !important;
         color: #0f172a !important;
-        margin-bottom: 0.5rem;
-        text-align: center;
-    }
-    
-    .subtitle {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.125rem;
-        color: #475569 !important;
-        text-align: center;
-        margin-bottom: 2rem;
+        margin: 1.5rem 0 1rem 0 !important;
+        letter-spacing: -0.025em !important;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 0.5rem;
     }
     
     /* Button styling for shadcn/ui look */
@@ -158,27 +172,30 @@ st.markdown("""
     .metric-card.info { border-left-color: #3b82f6; }
     
     .metric-title {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 0.875rem;
-        font-weight: 500;
-        color: #475569 !important;
+        font-weight: 600;
+        color: #64748b !important;
         margin-bottom: 0.5rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
     
     .metric-value {
-        font-family: 'Inter', sans-serif;
-        font-size: 2rem;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 2.25rem;
         font-weight: 700;
         color: #0f172a !important;
         margin-bottom: 0.25rem;
+        letter-spacing: -0.025em;
     }
     
     .metric-description {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 0.875rem;
-        color: #475569 !important;
+        color: #64748b !important;
+        font-weight: 400;
+        line-height: 1.4;
     }
     
     /* Badge components */
@@ -378,14 +395,86 @@ st.markdown("""
         border: 1px solid #e2e8f0;
     }
     
-    /* Sidebar styling - Clean white */
-    .css-1d391kg {
-        background-color: #ffffff;
-        border-right: 1px solid #e2e8f0;
+    /* Sidebar styling with beautiful gradient background - Multiple class targets */
+    .css-1d391kg, 
+    .css-1lcbmhc, 
+    .css-1outpf7, 
+    .css-1y4p8pa,
+    .css-17lntkn,
+    .css-1v3fvcr,
+    section[data-testid="stSidebar"],
+    .stSidebar,
+    [data-testid="stSidebar"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border-right: none !important;
     }
     
-    .css-1d391kg .css-10trblm {
-        background-color: #ffffff;
+    .css-1d391kg .css-10trblm,
+    .css-1lcbmhc .css-10trblm,
+    section[data-testid="stSidebar"] > div,
+    [data-testid="stSidebar"] > div {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    /* Sidebar text styling for gradient background - All possible selectors */
+    section[data-testid="stSidebar"] .stMarkdown, 
+    section[data-testid="stSidebar"] .stText, 
+    section[data-testid="stSidebar"] p, 
+    section[data-testid="stSidebar"] div, 
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] h4,
+    section[data-testid="stSidebar"] h5,
+    section[data-testid="stSidebar"] h6,
+    .css-1d391kg .stMarkdown, 
+    .css-1d391kg .stText, 
+    .css-1d391kg p, 
+    .css-1d391kg div, 
+    .css-1d391kg span,
+    .css-1d391kg h1,
+    .css-1d391kg h2,
+    .css-1d391kg h3,
+    .css-1d391kg h4,
+    .css-1d391kg h5,
+    .css-1d391kg h6 {
+        color: white !important;
+    }
+    
+    /* Sidebar metric cards with glass effect */
+    section[data-testid="stSidebar"] .metric-card,
+    .css-1d391kg .metric-card {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(10px);
+        color: white !important;
+    }
+    
+    section[data-testid="stSidebar"] .metric-card .metric-title,
+    section[data-testid="stSidebar"] .metric-card .metric-value,
+    section[data-testid="stSidebar"] .metric-card .metric-description,
+    .css-1d391kg .metric-card .metric-title,
+    .css-1d391kg .metric-card .metric-value,
+    .css-1d391kg .metric-card .metric-description {
+        color: white !important;
+    }
+    
+    /* Sidebar buttons with glass effect */
+    section[data-testid="stSidebar"] .stButton > button,
+    .css-1d391kg .stButton > button {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        color: white !important;
+        backdrop-filter: blur(10px);
+        font-weight: 500;
+    }
+    
+    section[data-testid="stSidebar"] .stButton > button:hover,
+    .css-1d391kg .stButton > button:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        transform: translateY(-1px);
     }
     
     /* Activity feed - Clean shadcn/ui style */
@@ -884,22 +973,19 @@ def status_indicator(status, text):
 
 # Main dashboard
 def main():
-    # Header with Lucide icons
+    # Clean business header
     st.markdown("""
-    <h1 class="main-title">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
-        Hospital Financial Intelligence
-    </h1>
-    """, unsafe_allow_html=True)
-    st.markdown("""
-    <p class="subtitle">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.25rem;">
-            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-        </svg>
-        AI-powered financial distress prediction and analysis platform for healthcare organizations
-    </p>
+    <div style="text-align: center; padding: 2rem 0 3rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: -1rem -1rem 2rem -1rem; color: white;">
+        <h1 style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 2.5rem; font-weight: 700; margin: 0; letter-spacing: -0.025em;">
+            Hospital Financial Intelligence Platform
+        </h1>
+        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 1.1rem; font-weight: 400; margin: 0.5rem 0 0 0; opacity: 0.9;">
+            AI-Powered Financial Distress Prediction | Built with Streamlit + Modern UI Components
+        </p>
+        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 0.95rem; font-weight: 400; margin: 0.25rem 0 0 0; opacity: 0.8;">
+            Empowering healthcare organizations with data-driven financial insights
+        </p>
+    </div>
     """, unsafe_allow_html=True)
     
     # Load data
@@ -991,7 +1077,7 @@ def main():
         ai_model_performance(model_metrics)
     
     with tab4:
-        llm_analysis(groq_data, selected_hospital)
+        llm_analysis(groq_data, selected_hospital, df)
     
     with tab5:
         portfolio_insights(df, selected_hospital)
@@ -1399,8 +1485,8 @@ def ai_model_performance(model_metrics):
             </div>
             """, unsafe_allow_html=True)
 
-def llm_analysis(groq_data, selected_hospital="🏢 All Hospitals (Portfolio View)"):
-    """LLM analysis page."""
+def llm_analysis(groq_data, selected_hospital="🏢 All Hospitals (Portfolio View)", hospital_data=None):
+    """LLM analysis page with real-time Groq integration."""
     is_individual = selected_hospital != "🏢 All Hospitals (Portfolio View)"
     
     st.markdown(f"""
@@ -1411,6 +1497,93 @@ def llm_analysis(groq_data, selected_hospital="🏢 All Hospitals (Portfolio Vie
         Groq AI-Powered {'Individual Hospital' if is_individual else 'Portfolio'} Analysis
     </h2>
     """, unsafe_allow_html=True)
+    
+    # Real-time analysis for individual hospitals
+    if is_individual and hospital_data is not None:
+        st.markdown("""
+        <h3 class="section-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Real-Time AI Analysis
+        </h3>
+        """, unsafe_allow_html=True)
+        
+        # Generate real-time analysis button
+        col1, col2 = st.columns([1, 3])
+        
+        with col1:
+            if st.button("🧠 Generate AI Analysis", key="generate_analysis", use_container_width=True):
+                # Get Groq analyzer
+                analyzer = get_groq_analyzer()
+                
+                if analyzer.enabled:
+                    # Extract hospital name
+                    hospital_name = selected_hospital.split("🏥 ")[-1].split(" (")[0] if "🏥" in selected_hospital else "Selected Hospital"
+                    
+                    # Show loading spinner
+                    with st.spinner(f"🤖 Analyzing {hospital_name} with Groq AI..."):
+                        # Get hospital data (first row if multiple years)
+                        hospital_row = hospital_data.iloc[0] if len(hospital_data) > 0 else pd.Series()
+                        
+                        # Generate analysis
+                        result = analyzer.analyze_hospital(hospital_row, hospital_name)
+                        
+                        if result['success']:
+                            # Store in session state
+                            st.session_state['current_analysis'] = result
+                            st.success(f"✅ Analysis complete! Cost: ${result['cost']:.6f}")
+                        else:
+                            st.error(f"❌ Analysis failed: {result['error']}")
+                else:
+                    st.error("⚠️ Groq API not configured. Please set GROQ_API_KEY in .env file.")
+        
+        with col2:
+            st.info("💡 Click 'Generate AI Analysis' to get real-time financial insights for this hospital using Groq AI.")
+        
+        # Display current analysis if available
+        if 'current_analysis' in st.session_state and st.session_state['current_analysis']['success']:
+            analysis = st.session_state['current_analysis']
+            
+            st.markdown("---")
+            st.markdown("### 📋 AI Analysis Results")
+            
+            # Analysis metadata
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                metric_card("Analysis Cost", f"${analysis['cost']:.6f}", "Groq API", "success")
+            
+            with col2:
+                metric_card("Tokens Used", f"{analysis['tokens']}", "LLaMA-3.1-8B", "info")
+            
+            with col3:
+                metric_card("Generated", "Just now", "Real-time", "info")
+            
+            with col4:
+                metric_card("Model", "Groq LLaMA", "Cloud API", "secondary")
+            
+            # Display the analysis content
+            st.markdown("### 🤖 AI Financial Analysis")
+            
+            # Format the analysis content
+            analysis_content = analysis['content']
+            
+            # Display in a nice container
+            st.markdown(f"""
+            <div class="metric-card info" style="margin: 1rem 0; padding: 1.5rem;">
+                <div style="white-space: pre-wrap; line-height: 1.6; font-size: 0.95rem;">
+{analysis_content}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Clear analysis button
+            if st.button("🗑️ Clear Analysis", key="clear_analysis"):
+                del st.session_state['current_analysis']
+                st.rerun()
+        
+        return  # Exit early for individual hospital analysis
     
     # LLM integration overview
     col1, col2 = st.columns([2, 1])
@@ -1620,40 +1793,103 @@ def portfolio_insights(df, selected_hospital="🏢 All Hospitals (Portfolio View
         )
         st.plotly_chart(fig, use_container_width=True)
 
-# Sidebar with clean styling
+# Sidebar with gradient styling
 with st.sidebar:
+    # Add comprehensive CSS to force gradient with maximum specificity
     st.markdown("""
-    <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
-        <h3 style="color: #0f172a; font-family: Inter, sans-serif; margin-bottom: 0.5rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+    <style>
+        /* Ultra-high specificity sidebar gradient forcing */
+        .stApp .stSidebar,
+        .stApp .stSidebar > div,
+        .stApp [data-testid="stSidebar"],
+        .stApp [data-testid="stSidebar"] > div,
+        .stApp section[data-testid="stSidebar"],
+        .stApp section[data-testid="stSidebar"] > div,
+        .css-1d391kg,
+        .css-1lcbmhc,
+        .css-1outpf7,
+        .css-1y4p8pa,
+        .css-17lntkn,
+        .css-1v3fvcr {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            background-color: #667eea !important;
+        }
+        
+        /* Force all sidebar content to be white */
+        .stApp .stSidebar *,
+        .stApp [data-testid="stSidebar"] *,
+        .stApp section[data-testid="stSidebar"] * {
+            color: white !important;
+        }
+        
+        /* Override Streamlit's default button styling in sidebar */
+        .stApp .stSidebar .stButton > button,
+        .stApp [data-testid="stSidebar"] .stButton > button {
+            background: rgba(255,255,255,0.2) !important;
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+        }
+        
+        .stApp .stSidebar .stButton > button:hover,
+        .stApp [data-testid="stSidebar"] .stButton > button:hover {
+            background: rgba(255,255,255,0.3) !important;
+            transform: translateY(-2px) !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 1rem; backdrop-filter: blur(10px);">
+        <h3 style="color: white !important; font-family: Inter, sans-serif; margin-bottom: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
             </svg>
             Hospital Financial Intelligence
         </h3>
-        <p style="color: #64748b; font-size: 0.875rem; margin: 0;">AI-Powered Financial Distress Prediction</p>
+        <p style="color: rgba(255,255,255,0.8) !important; font-size: 0.875rem; margin: 0;">AI-Powered Financial Distress Prediction</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Hospital Selection Card
+    # Hospital Selection Card with 3D effect
     st.markdown("""
-    <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
-        <h4 style="color: #0f172a; font-family: Inter, sans-serif; margin-bottom: 1rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+    <div class="sidebar-card-3d" style="
+        background: rgba(255,255,255,0.15); 
+        padding: 1rem; 
+        border-radius: 12px; 
+        border: 1px solid rgba(255,255,255,0.2); 
+        margin-bottom: 1rem; 
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)';">
+        <h4 style="color: white !important; font-family: Inter, sans-serif; margin-bottom: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.35-4.35"/>
             </svg>
             Hospital Selector
         </h4>
-        <p style="color: #64748b; font-size: 0.75rem; margin-bottom: 0.5rem;">
+        <p style="color: rgba(255,255,255,0.85) !important; font-size: 0.75rem; margin-bottom: 0.5rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
             Use the dropdown above to select a specific hospital for detailed analysis, or view the entire portfolio.
         </p>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("""
-    <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
-        <h4 style="color: #0f172a; font-family: Inter, sans-serif; margin-bottom: 1rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+    <div class="sidebar-card-3d" style="
+        background: rgba(255,255,255,0.15); 
+        padding: 1rem; 
+        border-radius: 12px; 
+        border: 1px solid rgba(255,255,255,0.2); 
+        margin-bottom: 1rem; 
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)';">
+        <h4 style="color: white !important; font-family: Inter, sans-serif; margin-bottom: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">
                 <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
                 <circle cx="12" cy="12" r="3"/>
             </svg>
@@ -1661,24 +1897,34 @@ with st.sidebar:
         </h4>
     """, unsafe_allow_html=True)
     
-    st.markdown(f"<div style='margin-bottom: 0.5rem;'>{status_indicator('online', 'Data Pipeline: Operational')}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='margin-bottom: 0.5rem;'>{status_indicator('online', 'AI Model: Active')}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='margin-bottom: 0.5rem;'>{status_indicator('online', 'Groq Cloud API: Connected')}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='margin-bottom: 0.5rem;'>{status_indicator('online', 'Dashboard: Live')}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-bottom: 0.5rem; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1);'>{status_indicator('online', 'Data Pipeline: Operational')}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-bottom: 0.5rem; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1);'>{status_indicator('online', 'AI Model: Active')}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-bottom: 0.5rem; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1);'>{status_indicator('online', 'Groq Cloud API: Connected')}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-bottom: 0.5rem; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.1);'>{status_indicator('online', 'Dashboard: Live')}</div>", unsafe_allow_html=True)
     
     st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("""
-    <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
-        <h4 style="color: #0f172a; font-family: Inter, sans-serif; margin-bottom: 1rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+    <div class="sidebar-card-3d" style="
+        background: rgba(255,255,255,0.15); 
+        padding: 1rem; 
+        border-radius: 12px; 
+        border: 1px solid rgba(255,255,255,0.2); 
+        margin-bottom: 1rem; 
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)';">
+        <h4 style="color: white !important; font-family: Inter, sans-serif; margin-bottom: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">
                 <line x1="18" y1="20" x2="18" y2="10"/>
                 <line x1="12" y1="20" x2="12" y2="4"/>
                 <line x1="6" y1="20" x2="6" y2="14"/>
             </svg>
             Quick Stats
         </h4>
-        <div style="color: #64748b; font-size: 0.875rem; line-height: 1.5;">
+        <div style="color: rgba(255,255,255,0.9) !important; font-size: 0.875rem; line-height: 1.5; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
             <div><strong>Last Updated:</strong> {}</div>
             <div><strong>Data Coverage:</strong> 2003-2023</div>
             <div><strong>Model Version:</strong> Enhanced v1.0</div>
@@ -1688,9 +1934,19 @@ with st.sidebar:
     """.format(datetime.now().strftime('%Y-%m-%d %H:%M')), unsafe_allow_html=True)
     
     st.markdown("""
-    <div style="background: #ffffff; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
-        <h4 style="color: #0f172a; font-family: Inter, sans-serif; margin-bottom: 1rem;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem;">
+    <div class="sidebar-card-3d" style="
+        background: rgba(255,255,255,0.15); 
+        padding: 1rem; 
+        border-radius: 12px; 
+        border: 1px solid rgba(255,255,255,0.2); 
+        margin-bottom: 1rem; 
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 12px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)';">
+        <h4 style="color: white !important; font-family: Inter, sans-serif; margin-bottom: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 0.5rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
             Quick Actions
@@ -1730,6 +1986,130 @@ st.markdown("""
     <p>Inspired by <a href="https://github.com/ObservedObserver/streamlit-shadcn-ui" target="_blank" style="color: #3b82f6; text-decoration: none;">streamlit-shadcn-ui</a> design principles</p>
 </div>
 """, unsafe_allow_html=True)
+
+class GroqAnalyzer:
+    """Streamlit-integrated Groq analyzer for real-time hospital analysis."""
+    
+    def __init__(self):
+        """Initialize the analyzer with Groq API key."""
+        self.api_key = os.getenv('GROQ_API_KEY')
+        if not self.api_key:
+            st.error("⚠️ GROQ_API_KEY not found. Please set it in .env file for real-time AI analysis.")
+            self.enabled = False
+        else:
+            self.enabled = True
+        
+        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        self.model = "llama-3.1-8b-instant"
+    
+    def analyze_hospital(self, hospital_data: pd.Series, hospital_name: str) -> Dict:
+        """Analyze a single hospital's financial performance in real-time."""
+        if not self.enabled:
+            return {
+                'success': False,
+                'error': 'Groq API key not configured'
+            }
+        
+        # Extract key metrics
+        metrics = {
+            'operating_margin': float(hospital_data.get('operating_margin', 0)),
+            'current_ratio': float(hospital_data.get('current_ratio', 1.0)),
+            'days_cash_on_hand': float(hospital_data.get('days_cash_on_hand', 30)),
+            'total_margin': float(hospital_data.get('total_margin', 0)),
+            'debt_service_coverage': float(hospital_data.get('debt_service_coverage_ratio', 0)),
+            'operating_revenue': float(hospital_data.get('total_operating_revenue', 0))
+        }
+        
+        # Create analysis prompt
+        prompt = f"""
+You are a healthcare financial analyst. Provide a comprehensive analysis of {hospital_name}'s financial performance:
+
+**Hospital Financial Metrics:**
+- Operating Margin: {metrics['operating_margin']:.2%}
+- Total Margin: {metrics['total_margin']:.2%}
+- Current Ratio: {metrics['current_ratio']:.2f}
+- Days Cash on Hand: {metrics['days_cash_on_hand']:.0f} days
+- Debt Service Coverage: {metrics['debt_service_coverage']:.2f}
+- Operating Revenue: ${metrics['operating_revenue']:,.0f}
+
+**Required Analysis Format:**
+🏥 **Financial Health Assessment:**
+Operating Margin: [value]% ([Above/Below] industry average)
+Current Ratio: [value] ([Strong/Adequate/Weak] liquidity position)
+Days Cash: [value] days ([Adequate/Insufficient] reserves)
+
+🔍 **AI Insights:**
+"[Hospital name] demonstrates [assessment] with [key finding]..."
+
+💡 **Recommendations:**
+• [Specific actionable recommendation 1]
+• [Specific actionable recommendation 2]
+• [Specific actionable recommendation 3]
+
+📊 **Risk Level:** [LOW/MEDIUM/HIGH]
+
+Format professionally for healthcare executives. Be specific and actionable.
+"""
+        
+        try:
+            # Make API call
+            payload = {
+                "model": self.model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a healthcare financial analyst providing professional analysis."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "max_tokens": 600,
+                "temperature": 0.7
+            }
+            
+            response = requests.post(
+                self.base_url,
+                headers=self.headers,
+                json=payload,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                content = data['choices'][0]['message']['content']
+                tokens = data['usage']['total_tokens']
+                
+                return {
+                    'success': True,
+                    'content': content,
+                    'tokens': tokens,
+                    'cost': tokens * 0.00000059,
+                    'metrics': metrics,
+                    'timestamp': datetime.now().isoformat()
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': f"API Error: {response.status_code}"
+                }
+                
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
+# Initialize Groq analyzer
+@st.cache_resource
+def get_groq_analyzer():
+    """Get cached Groq analyzer instance."""
+    return GroqAnalyzer()
 
 if __name__ == "__main__":
     main() 
