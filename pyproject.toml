@@ -41,6 +41,8 @@ dependencies = [
     "openpyxl>=3.1.0",
     "fastparquet",
     "xlrd",
+    # Web dashboard (moved from optional)
+    "streamlit>=1.25.0",
     # Utilities
     "python-dotenv>=1.0.0",
     "requests>=2.31.0",
@@ -68,7 +70,6 @@ dev = [
 ]
 
 web = [
-    "streamlit>=1.25.0",
     "jupyter>=1.0.0",
 ]
 

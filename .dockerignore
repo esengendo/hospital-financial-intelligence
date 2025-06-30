@@ -1,0 +1,61 @@
+# Git and version control
+.git
+.gitignore
+.github/
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS specific files
+Thumbs.db
+*.log
+
+# Development and testing
+.pytest_cache/
+.coverage
+.tox/
+.cache
+.mypy_cache/
+
+# Documentation and project files (keep essential ones)
+*.md
+!README.md
+!PIPELINE_GUIDE.md
+
+# Large data files (mount these as volumes in production)
+data/raw/*
+!data/raw/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Jupyter notebooks (development only)
+notebooks/
+*.ipynb
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Docker files (avoid recursive copies)
+Dockerfile*
+docker-compose*.yml
+.dockerignore 

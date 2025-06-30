@@ -11,11 +11,13 @@ wheels/
 
 # Internal project management files (not for public repo)
 PROJECT-RULES.md
+PROJECT_PLAN.md
+PROJECT_LOG.md
+Project_plan*
+Project-rules*
 .cursorrules
 CONTEXT.md
 TASKLIST.md
-PROJECT_PLAN.md
-PROJECT_LOG.md
 DOWNLOAD_GUIDE.md
 
 # IDE/Editor files
