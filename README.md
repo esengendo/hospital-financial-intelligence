@@ -1,302 +1,223 @@
-# 🏥 Hospital Financial AI: Predictive Analytics & Executive Insights
+# 🏥 Hospital Financial Intelligence Platform
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+> **Predicting healthcare financial distress with AI-powered analytics**
 
-A **production-ready, portfolio-grade data science project** that predicts hospital financial distress and generates LLM-based executive summaries using the [California Health and Human Services Hospital Financial Disclosure dataset](https://data.chhs.ca.gov/dataset/hospital-annual-financial-disclosure-report-complete-data-set).
+A production-ready healthcare analytics system that combines 20+ years of California hospital data, advanced machine learning, and explainable AI to predict financial distress and provide actionable insights for healthcare executives.
 
-## 📊 Business Objective
+## ✨ What Makes This Special
 
-This project delivers actionable insights for healthcare administrators by:
-
-1. **🎯 Predicting Financial Risk**: Machine learning models identify hospitals at risk of financial distress
-2. **💰 Cost Optimization**: Analyzes labor expense ratios and contract labor inefficiencies  
-3. **📈 Executive Summaries**: AI-generated insights using open-source LLMs (Falcon, Mistral, Flan-T5)
-4. **📱 Interactive Dashboard**: Browser-based Streamlit interface for real-time analysis
-5. **🐳 Production Ready**: Fully containerized with Docker for enterprise deployment
-
-## 🏗️ Architecture
-
-```
-Project_Hospital_Financial_Analysis/
-├── 📁 data/
-│   ├── raw/                    # Original CHHS data files
-│   └── processed/              # Cleaned, feature-engineered datasets
-├── 📁 models/                  # Trained ML models & artifacts (Phase 4)
-├── 📁 reports/                 # ✅ Generated analysis reports & dashboards
-├── 📁 visuals/                 # ✅ Charts, plots, and SHAP outputs
-│   ├── eda_charts/
-│   └── shap_outputs/
-├── 📁 notebooks/               # ✅ Jupyter EDA analysis
-├── 📁 src/                     # ✅ Core Python modules
-│   ├── __init__.py            # ✅ Package initialization
-│   ├── config.py              # ✅ Docker-ready configuration system
-│   ├── ingest.py              # ✅ Data loading with flexible paths
-│   ├── preprocess.py          # ✅ Data cleaning & validation
-│   ├── eda.py                 # ✅ Enhanced EDA with HADR PCL validation
-│   ├── financial_metrics.py   # ✅ HADR-compliant financial calculations
-│   └── visualizations.py      # ✅ Professional charting and dashboards
-├── 📊 run_eda.py              # ✅ Docker-compatible EDA execution
-├── 🏥 HADR_DATA_STRUCTURE.md  # ✅ Official OSHPD documentation analysis
-├── 📦 pyproject.toml          # ✅ UV package management
-├── 🔒 uv.lock                 # ✅ Dependency lock file
-└── 📚 Documentation files
-```
-
-## 🚀 Project Progress
-
-### ✅ Phase 1: Data Ingestion & Setup (Complete)
-- Data source identification and access
-- UV package manager setup
-- Project structure initialization
-
-### ✅ Phase 2: Data Preprocessing (Complete)  
-- CHHS data cleaning and standardization
-- Data quality validation
-- Parquet optimization for performance
-
-### ✅ Phase 3: Enhanced EDA with HADR Integration (Complete)
-- **Docker-ready configuration system** with environment variables
-- **HADR PCL validation** with official OSHPD compliance
-- **4-strategy column mapping** achieving 80% success rate
-- **Financial metrics calculator** with 7 core healthcare ratios
-- **Comprehensive reporting** with automated dashboards
-- **22-year analysis** covering 9,956 hospital records
-
-### 🔄 Phase 4: Feature Engineering (Completed)
-- **Comprehensive Feature Library:** Generated over 30 features per hospital per year, including:
-    * **Core Financial Ratios:** Covering liquidity, profitability, efficiency, and leverage.
-    * **Advanced Predictive Features:** Components of the Altman Z-Score for bankruptcy prediction.
-    * **Time-Series Momentum:** Year-over-Year changes to capture trends.
-- **Robust Data Pipeline:** The feature engineering pipeline is fully automated, handling data loading, validation, calculation, and saving of feature sets.
-- **Scalable Architecture:** The system processes 21 years of data, demonstrating its ability to handle large-scale financial analysis.
-
-### 📋 Phase 5: Predictive Modeling (Current)
-
-*Work in progress...*
+🎯 **Real-World Impact**: Analyzes 441 California hospitals using official state data (2003-2023)  
+🧠 **AI-Powered**: Groq LLM integration for intelligent financial analysis  
+📊 **Production-Ready**: Complete MLOps pipeline with Docker deployment  
+🔍 **Explainable**: SHAP-based model interpretability for regulatory compliance  
+⚡ **High Performance**: 99.5% ROC-AUC with 147 engineered features  
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.9+
-- `uv` package manager
-- Git
-
-### 1. Clone & Setup
+### Option 1: Docker (Recommended)
 ```bash
-git clone https://github.com/your-username/hospital-financial-ai.git
-cd hospital-financial-ai
+# Pull and run from Docker Hub
+docker pull esengendo730/hospital-financial-ai:latest
+docker run -p 8502:8502 esengendo730/hospital-financial-ai:latest
 
-# Create virtual environment with uv
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-uv pip install -e .
+# Access dashboard at http://localhost:8502
 ```
 
-### 2. Environment Configuration
+### Option 2: Local Development
 ```bash
-cp .env.template .env
-# Edit .env with your Hugging Face token (optional)
+# Clone and setup
+git clone <repository-url>
+cd Project_Hospital_Financial_Analysis
+source .venv/bin/activate
+
+# Install dependencies  
+uv pip install -r requirements.txt
+
+# Run complete analysis pipeline
+python pipeline.py --full
+
+# Launch interactive dashboard
+python pipeline.py --dashboard
 ```
 
-### 3. Run Complete Pipeline
-```bash
-# Option A: Full automated pipeline
-./start.sh
+**That's it!** 🎉 Your healthcare analytics platform is running.
 
-# Option B: Interactive Jupyter analysis
-jupyter lab notebooks/hospital_financial_analysis.ipynb
+## 🎯 Key Features
 
-# Option C: Launch Streamlit dashboard
-streamlit run src/dashboard.py
+### 💡 Intelligent Analytics
+- **Financial Health Prediction**: XGBoost models with 99.5% accuracy
+- **AI-Powered Insights**: Natural language analysis via Groq LLM
+- **Real-Time Dashboards**: Interactive Streamlit interface
+- **Regulatory Compliance**: SHAP explainability for audits
+
+### 📈 Advanced Engineering
+- **147 Features**: From 33 base metrics to comprehensive financial indicators
+- **Altman Z-Score**: Complete bankruptcy prediction framework
+- **Time-Series Analysis**: Rolling averages, volatility, momentum indicators
+- **Data Quality**: HADR PCL compliance validation
+
+### 🏗️ Production Architecture
+- **Streamlined Pipeline**: Single-command orchestration
+- **Docker Ready**: Containerized deployment
+- **Scalable Design**: Modular, testable components
+- **MLOps Best Practices**: Experiment tracking, model versioning
+
+## 📊 Performance Highlights
+
+| Metric | Value | Description |
+|--------|-------|-------------|
+| **ROC-AUC** | 99.5% | Model accuracy on test set |
+| **PR-AUC** | 90.9% | Precision-recall performance |
+| **Data Coverage** | 20+ years | Historical analysis depth |
+| **Hospitals** | 441 | California healthcare facilities |
+| **Features** | 147 | Engineered financial indicators |
+
+## 🛠️ Technical Stack
+
+**Core Technologies**
+- Python 3.9+ • Pandas • XGBoost • SHAP • Streamlit
+
+**Data & ML**
+- Parquet • NumPy • Scikit-learn • Plotly • Groq LLM
+
+**DevOps**
+- Docker • Docker Hub • UV Package Manager • Virtual Environments
+
+## 📁 Project Structure
+
+```
+├── pipeline.py                    # 🎯 Master orchestrator
+├── run_eda.py                     # 📊 Exploratory analysis  
+├── run_enhanced_modeling.py       # 🤖 ML training
+├── groq_hospital_analysis.py      # 🧠 AI insights
+├── streamlit_dashboard_modern.py  # 📈 Interactive dashboard
+├── src/                           # 📚 Core modules
+├── data/                          # 💾 Data storage
+├── models/                        # 🎯 Trained models
+└── reports/                       # 📄 Analysis outputs
 ```
 
-### 4. Docker Deployment
+## 🎮 Usage Examples
+
+### Docker Commands
 ```bash
-# Build and run with Docker
-docker build -t hospital-financial-ai .
-docker run -p 8501:8501 hospital-financial-ai
-```
-Access dashboard at: http://localhost:8501
+# Run complete pipeline in Docker
+docker run esengendo730/hospital-financial-ai:latest python pipeline.py --full
 
-## 📊 Data Source
+# Launch dashboard on custom port
+docker run -p 8503:8502 esengendo730/hospital-financial-ai:latest
 
-This project uses the **Hospital Annual Financial Disclosure Report** from the California Health and Human Services Open Data Portal:
-
-- **Dataset**: [CHHS Hospital Financial Data](https://data.chhs.ca.gov/dataset/hospital-annual-financial-disclosure-report-complete-data-set)
-- **Coverage**: All licensed California hospitals (2015-2023)
-- **Features**: Revenue, expenses, balance sheets, utilization metrics
-- **Update Frequency**: Annual
-- **Format**: XLSX/CSV with 5.5M+ records
-
-## 🔬 Technical Features
-
-### Docker-Ready Configuration System
-- **Environment Variables**: Configurable data paths for containerization
-- **Command Line Interface**: `--base-dir`, `--data-dir`, `--output-dir` options
-- **Auto-Discovery**: Flexible year detection and batch processing
-- **Production Ready**: No hardcoded paths, full container compatibility
-
-### Enhanced HADR PCL Validation
-- **Official Compliance**: Direct integration with OSHPD HADR documentation
-- **PCL References**: Page-Column-Line validation for all financial fields
-- **4-Strategy Mapping**: Direct PCL → Fuzzy PCL → Standard → Partial matching
-- **Data Quality**: 100% HADR alignment for 2018-2023 data with 80% mapping success
-
-### Financial Metrics Calculator
-- **7 Core Metrics**: Liquidity, profitability, efficiency, and leverage indicators
-- **Missing Value Handling**: Robust 0-fill strategy following financial standards
-- **HADR-Aligned Fields**: Official PCL references for regulatory compliance
-- **Business Context**: Healthcare-specific financial ratio analysis
-
-### Machine Learning Pipeline (Phase 4 - Planned)
-- **Models**: XGBoost, Random Forest, Logistic Regression ensemble
-- **Features**: 45+ engineered financial ratios and trend indicators
-- **Validation**: Time-series cross-validation with forward chaining
-- **Metrics**: ROC-AUC, Precision-Recall, Financial Impact Analysis
-
-### Explainable AI (Phase 5 - Planned)
-- **SHAP Values**: Feature importance and model interpretability
-- **Visualizations**: Waterfall plots, force plots, summary plots
-- **Business Context**: Financial ratio analysis with domain expertise
-
-## 📈 Key Insights & Results
-
-### Phase 3 (EDA) - Current Status
-- **Dataset Coverage**: 22 years (2002-2023) of California hospital data
-- **Records Analyzed**: 9,956 hospital financial reports
-- **HADR Compliance**: 100% PCL validation for enhanced years (2018-2023)
-- **Financial Metrics**: 7 core metrics with 80% successful mapping
-- **Data Quality**: 36.9% overall (expected due to specialty field structure)
-
-### Technical Achievements
-- **Configuration System**: Full Docker deployment readiness
-- **Column Mapping**: 4-strategy approach with 80% success rate
-- **HADR Integration**: Official OSHPD PCL references and validation
-- **Financial Calculations**: Robust missing value handling and 0-fill strategy
-- **Reporting**: Automated dashboards and executive summaries
-
-### HADR PCL Validated Fields (2018-2023)
-1. **Patient Revenue** (`REV_TOT_PT_REV` - P12_C23_L415)
-2. **Operating Expenses** (`PY_TOT_OP_EXP` - P8_C2_L200)
-3. **Net Income** (`EQ_UNREST_FND_NET_INCOME` - P7_C1_L55)
-4. **Assets** (`PY_SP_PURP_FND_OTH_ASSETS` - P6_C2_L30)
-5. **Cash Flow** (`CASH_FLOW_SPECIFY_OTH_OP_L102` - P9_C91_L102)
-6. **Liabilities** (`PY_SP_PURP_FND_TOT_LIAB_EQ` - P6_C4_L75)
-
-### Future Model Performance (Phase 4 - Planned)
-- **ROC-AUC**: Target 0.87+ (XGBoost ensemble)
-- **Precision**: Target 0.82+ at 20% recall threshold
-- **Early Warning**: 12-month prediction horizon
-
-## 🖥️ Dashboard Features
-
-The Streamlit dashboard provides:
-
-- **📊 Executive Overview**: Key metrics and risk indicators
-- **🎯 Hospital Search**: Individual facility analysis
-- **📈 Trend Analysis**: Multi-year financial trajectories  
-- **🤖 AI Insights**: Real-time LLM-generated summaries
-- **📋 Risk Reports**: Downloadable PDF assessments
-- **🔍 Comparative Analysis**: Peer benchmarking
-
-## 🧪 Development & Testing
-
-### Code Quality
-```bash
-# Format code
-black src/ notebooks/
-
-# Type checking
-mypy src/
-
-# Linting
-flake8 src/
-
-# Run tests
-pytest tests/ --cov=src
+# Interactive shell access
+docker run -it esengendo730/hospital-financial-ai:latest /bin/bash
 ```
 
-### Continuous Integration
-GitHub Actions workflow automatically:
-- ✅ Tests data pipeline integrity
-- ✅ Validates model performance
-- ✅ Checks code quality standards
-- ✅ Builds Docker images
+### Local Development
+```bash
+# Complete pipeline from raw data
+python pipeline.py --full
 
-## 📚 Documentation
+# Quick analysis for development
+python pipeline.py --quick --sample-size 1000
 
-- **[CONTEXT.md](CONTEXT.md)**: Problem background and healthcare industry context
-- **[TASK.md](TASK.md)**: Technical implementation details and module breakdown
-- **[Notebook](notebooks/hospital_financial_analysis.ipynb)**: Complete analysis walkthrough
-- **[API Docs](docs/)**: Module documentation and API reference
+# Specific analysis phases
+python pipeline.py --eda-only
+python pipeline.py --modeling-only
 
-## 🤝 Contributing
+# Custom dashboard port
+python pipeline.py --dashboard --port 8503
+```
 
-This project follows software engineering best practices:
+## 🏆 Skills Demonstrated
 
-1. **Fork** the repository
-2. **Create** feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to branch (`git push origin feature/amazing-feature`)
-5. **Open** Pull Request
+### **Data Science & ML**
+- Feature engineering (33 → 147 features)
+- Time-series analysis and forecasting
+- Imbalanced data handling techniques
+- Model interpretability (SHAP)
+- Hyperparameter optimization
 
-## 📄 License
+### **Software Engineering**
+- Clean, modular architecture
+- Comprehensive testing and validation
+- Docker containerization
+- CI/CD pipeline design
+- Production deployment patterns
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### **Healthcare Domain**
+- GAAP accounting standards
+- HADR PCL compliance
+- Healthcare financial ratios
+- Regulatory requirements
+- Executive dashboard design
 
-## 🙏 Acknowledgments
+### **AI/LLM Integration**
+- Groq API integration
+- Prompt engineering
+- Natural language generation
+- Portfolio analysis automation
+- Business intelligence workflows
 
-- **California Health and Human Services** for providing comprehensive hospital financial data
-- **Hugging Face** for democratizing access to state-of-the-art language models
-- **Healthcare Financial Management Association** for domain expertise and validation
+## 📈 Business Impact
 
-## 📞 Contact
+**For Healthcare Executives:**
+- Early warning system for financial distress
+- Portfolio risk assessment and monitoring
+- Regulatory compliance reporting
+- Strategic planning insights
 
-**Portfolio Project** - Demonstrating expertise in:
-- Healthcare Analytics & Domain Knowledge
-- Production MLOps & Model Deployment  
-- LLM Integration & Prompt Engineering
-- Data Visualization & Executive Communication
+**For Data Teams:**
+- Production-ready ML pipeline
+- Explainable AI framework
+- Automated report generation
+- Scalable analytics platform
 
-## Reproducibility & Random Seed Configuration
+## 🔧 Advanced Features
 
-This project implements comprehensive random seed management to ensure full reproducibility across all analyses and model training runs.
-
-### Random Seed Settings
-
-- **Default Seed**: `42` (configurable via environment variable)
-- **Environment Variable**: `RANDOM_SEED=<value>` 
-- **Coverage**: Python `random`, NumPy, XGBoost, pandas sampling, and PYTHONHASHSEED
-
-### Configuration
-
+### **AI-Powered Analysis**
 ```python
-# Set custom seed via environment
-export RANDOM_SEED=123
-
-# Or use default (42)
-python run_modeling.py
+# Generate hospital financial insights
+analyzer = GroqHospitalAnalyzer()
+insights = analyzer.analyze_portfolio(max_hospitals=10)
 ```
 
-The seed is automatically applied to:
-- XGBoost model training (`random_state`)
-- Data sampling in EDA (`pandas.sample()`)
-- NumPy random operations
-- Python's built-in `random` module
-- Cross-validation splits
+### **Interactive Dashboard**
+- Real-time financial health monitoring
+- Executive-ready visualizations
+- Multi-hospital portfolio views
+- Drill-down analysis capabilities
 
-### Implementation
+### **Model Explainability**
+- SHAP feature importance analysis
+- Individual prediction explanations
+- Regulatory audit trails
+- Business-friendly interpretations
 
-Random seeds are centrally managed in `src/config.py` and automatically applied when the configuration is initialized. This ensures consistent results across:
-- Feature engineering pipelines
-- Model training and evaluation
-- Data visualization sampling
-- Cross-validation procedures
+## 🚀 Getting Started
+
+### Quick Demo (Docker)
+1. **Pull from Docker Hub**: `docker pull esengendo730/hospital-financial-ai:latest`
+2. **Run the dashboard**: `docker run -p 8502:8502 esengendo730/hospital-financial-ai:latest`
+3. **Open browser**: Navigate to `http://localhost:8502`
+
+### Local Development
+1. **Clone the repository**
+2. **Activate virtual environment**: `source .venv/bin/activate`
+3. **Install dependencies**: `uv pip install -r requirements.txt`
+4. **Run the pipeline**: `python pipeline.py --full`
+5. **Explore the dashboard**: `python pipeline.py --dashboard`
+
+## 🎯 What's Next?
+
+This platform demonstrates production-ready healthcare analytics with:
+- **Scalable ML pipelines** for enterprise deployment
+- **Explainable AI** for regulatory compliance
+- **Modern data engineering** practices
+- **Healthcare domain expertise** application
+
+Ready to discuss how these skills can drive impact at your organization? Let's connect! 🤝
 
 ---
 
-*This project showcases 20 years of healthcare analytics experience in a modern, production-ready implementation suitable for enterprise healthcare organizations.*
+**Built with ❤️ for healthcare analytics and data-driven decision making**
+
+*Showcasing expertise in ML, healthcare analytics, and production system design*

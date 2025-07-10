@@ -2,8 +2,8 @@
 """
 Hospital Financial Intelligence - EDA Execution Script
 
-Professional business execution script for hospital financial analysis.
-Docker-ready with configurable paths and environment variable support.
+Professional EDA execution for hospital financial analysis.
+Docker-ready with configurable paths and environment support.
 """
 
 import argparse
@@ -37,20 +37,20 @@ def parse_args():
         description="🏥 Hospital Financial Intelligence - Professional EDA Platform"
     )
     
-    # Analysis parameters (defaults to full analysis)
-    parser.add_argument('--years', help='Years to analyze (e.g., "2015-2023" or "2020,2021,2022") - overrides default full analysis')
-    parser.add_argument('--single-year-only', action='store_true', help='Analyze only most recent year instead of all years')
+    # Analysis parameters
+    parser.add_argument('--years', help='Years to analyze (e.g., "2015-2023" or "2020,2021,2022")')
+    parser.add_argument('--single-year-only', action='store_true', help='Analyze only most recent year')
     parser.add_argument('--dashboard-only', action='store_true', help='Generate dashboard only')
     parser.add_argument('--sample-size', type=int, help='Random sample size for large datasets')
     
-    # Phase 3 Healthcare-Specific Analysis (enabled by default)
+    # Healthcare analysis
     parser.add_argument('--skip-phase3', action='store_true', 
-                       help='Skip Phase 3 healthcare-specific analysis (legacy mode for faster execution)')
+                       help='Skip Phase 3 healthcare-specific analysis')
     
-    # Path configuration (Docker-friendly)
+    # Path configuration
     parser.add_argument('--base-dir', 
                        default=os.getenv('PROJECT_BASE_DIR', '.'),
-                       help='Base project directory (default: current directory or PROJECT_BASE_DIR env var)')
+                       help='Base project directory')
     parser.add_argument('--data-dir', 
                        help='Data directory (overrides PROCESSED_DATA_DIR env var)')
     parser.add_argument('--output-dir', 
@@ -75,7 +75,7 @@ def parse_years(years_str: str) -> List[int]:
 
 
 def validate_environment(config) -> bool:
-    """Validate environment setup using config."""
+    """Validate environment setup."""
     logger = logging.getLogger(__name__)
     
     is_valid, issues = config.validate_environment()
@@ -103,7 +103,7 @@ def print_header():
 
 
 def print_summary(results: dict):
-    """Print analysis summary with Phase 3 enhancements."""
+    """Print analysis summary."""
     phase3_summary = results.get('phase3_summary', {})
     phase3_enabled = results.get('phase3_enabled', False)
     
@@ -143,16 +143,16 @@ def main():
         print_header()
     
     try:
-        # Initialize configuration with base directory
+        # Initialize configuration
         base_dir = Path(args.base_dir).resolve()
         config = get_config(base_dir)
         
-        # Override config paths if provided via command line
+        # Override config paths if provided
         if args.data_dir:
             config.processed_data_dir = Path(args.data_dir).resolve()
         if args.output_dir:
             config.reports_dir = Path(args.output_dir).resolve()
-            config._create_directories()  # Ensure new directories exist
+            config._create_directories()
         
         logger.info(f"📁 Configuration:")
         logger.info(f"   Base Directory: {config.base_dir}")
@@ -167,19 +167,17 @@ def main():
         logger.info("🚀 Initializing Hospital Financial Intelligence Platform...")
         eda_platform = HospitalFinancialEDA(config=config)
         
-        # Determine years for analysis (default: all available years)
+        # Determine years for analysis
         if args.years:
-            # User specified specific years
             years = [str(y) for y in parse_years(args.years)]
         elif args.single_year_only:
-            # User wants only most recent year
             years = ['2023']
         else:
-            # Default: Find all available years from data files
+            # Find all available years from data files
             data_files = list(config.processed_data_dir.glob(config.get_data_file_pattern()))
             years = []
             for file in data_files:
-                # Extract years from filename patterns like "processed_financials_2019_2020.parquet"
+                # Extract years from filename patterns
                 parts = file.stem.split('_')
                 for part in parts:
                     if part.isdigit() and len(part) == 4 and part.startswith('20'):
@@ -192,82 +190,38 @@ def main():
         
         logger.info(f"📅 Analysis scope: {len(years)} years ({', '.join(years)})")
         
-        # Determine Phase 3 execution (enabled by default)
+        # Determine Phase 3 execution
         phase3_enabled = not args.skip_phase3
         if phase3_enabled:
-            logger.info("🏥 Phase 3 Healthcare-Specific Analysis: ENABLED (default)")
+            logger.info("🏥 Phase 3 Healthcare-Specific Analysis: ENABLED")
         else:
-            logger.info("⚡ Phase 3 Healthcare-Specific Analysis: SKIPPED (legacy mode)")
-
-        # Run analysis
-        all_results = []
-        phase3_aggregate = {'payer_fields_found': 0, 'market_counties_analyzed': 0, 'quality_indicators_found': 0}
+            logger.info("⚡ Phase 3 Healthcare-Specific Analysis: SKIPPED")
         
-        for year in years:
-            logger.info(f"🔍 Analyzing year: {year}")
-            try:
-                result = eda_platform.run_single_year_analysis(year)
-                if result:
-                    all_results.append(result)
-                    
-                    # Aggregate Phase 3 results if available
-                    if phase3_enabled and 'phase3_healthcare_analysis' in result:
-                        phase3_data = result['phase3_healthcare_analysis'].get('phase3_summary', {})
-                        phase3_aggregate['payer_fields_found'] = max(
-                            phase3_aggregate['payer_fields_found'], 
-                            phase3_data.get('payer_fields_found', 0)
-                        )
-                        phase3_aggregate['market_counties_analyzed'] = max(
-                            phase3_aggregate['market_counties_analyzed'], 
-                            phase3_data.get('market_counties_analyzed', 0)
-                        )
-                        phase3_aggregate['quality_indicators_found'] = max(
-                            phase3_aggregate['quality_indicators_found'], 
-                            phase3_data.get('quality_indicators_found', 0)
-                        )
-                    
-            except Exception as e:
-                logger.error(f"❌ Failed to analyze year {year}: {e}")
-                continue
-
-        if all_results:
-            # Calculate combined results
-            total_records = sum(r.get('records_analyzed', 0) for r in all_results)
-            avg_quality = sum(r.get('data_quality_score', 0) for r in all_results) / len(all_results)
-            avg_hadr_alignment = sum(r.get('hadr_alignment_score', 0) for r in all_results) / len(all_results)
-            
-            summary_results = {
-                'records_analyzed': total_records,
-                'years_covered': f"{years[0]}-{years[-1]}" if len(years) > 1 else years[0],
-                'data_quality_score': avg_quality,
-                'hadr_alignment_score': avg_hadr_alignment,
-                'phase3_enabled': phase3_enabled,
-                'phase3_summary': phase3_aggregate if phase3_enabled else {},
-                'outputs': {
-                    'dashboard_file': f"Multiple dashboards generated in {config.reports_dir}"
-                }
-            }
-            
-            if not args.quiet:
-                print_summary(summary_results)
-            
-            logger.info("✅ All years analyzed successfully.")
+        # Execute analysis
+        if args.dashboard_only:
+            logger.info("📊 Dashboard-only mode: Generating financial dashboard...")
+            results = eda_platform.generate_dashboard_only(years=years)
         else:
-            logger.error("❌ No years were successfully analyzed.")
-            return 1
+            logger.info("🔍 Full Analysis Mode: Complete EDA pipeline...")
+            results = eda_platform.run_comprehensive_analysis(
+                years=years,
+                sample_size=args.sample_size,
+                phase3_enabled=phase3_enabled
+            )
         
-        return 0
+        # Print summary
+        if not args.quiet:
+            print_summary(results)
         
-    except KeyboardInterrupt:
-        logger.warning("⚠️  Analysis interrupted")
-        return 130
+        logger.info("✅ EDA execution completed successfully!")
+        
     except Exception as e:
-        logger.error(f"❌ Analysis failed: {e}")
+        logger.error(f"❌ EDA execution failed: {str(e)}")
         if args.log_level == 'DEBUG':
             import traceback
-            traceback.print_exc()
-        return 1
+            logger.debug(traceback.format_exc())
+        sys.exit(1)
 
 
-if __name__ == '__main__':
-    sys.exit(main()) 
+if __name__ == "__main__":
+    main() 

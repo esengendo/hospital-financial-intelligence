@@ -39,7 +39,7 @@ COPY . .
 RUN mkdir -p data/raw data/processed data/features data/features_enhanced \
     models reports visuals logs && \
     chmod -R 755 data models reports visuals logs && \
-    chmod +x main.py run_pipeline.py docker-build.sh
+    chmod +x pipeline.py docker-build.sh
 
 # Create a non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser && \
@@ -54,4 +54,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8502/_stcore/health || exit 1
 
 # Default command - launch dashboard
-CMD ["python", "main.py", "--dashboard-only", "--port", "8502"] 
+CMD ["python", "pipeline.py", "--dashboard", "--port", "8502"] 

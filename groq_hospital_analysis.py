@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Production-Ready Hospital Financial Analysis using Groq API
-Hospital Financial Intelligence - Phase 6 LLM Integration
+Hospital Financial Analysis using Groq API
+Production-ready LLM integration for healthcare analytics.
 """
 
 import os
@@ -20,10 +20,10 @@ from typing import Dict, List, Optional, Union
 load_dotenv()
 
 class GroqHospitalAnalyzer:
-    """Production-ready hospital financial analyzer using Groq API."""
+    """Hospital financial analyzer using Groq API."""
     
     def __init__(self, api_key: Optional[str] = None):
-        """Initialize the analyzer with Groq API key."""
+        """Initialize analyzer with Groq API key."""
         self.api_key = api_key or os.getenv('GROQ_API_KEY')
         if not self.api_key:
             raise ValueError("GROQ_API_KEY not found. Please set it in .env file.")
@@ -43,7 +43,7 @@ class GroqHospitalAnalyzer:
             data_file = f"data/features_enhanced/features_enhanced_{year}.parquet"
             df = pd.read_parquet(data_file)
             
-            # Fill missing values with reasonable defaults
+            # Fill missing values
             df['operating_margin'] = df['operating_margin'].fillna(0)
             df['current_ratio'] = df['current_ratio'].fillna(1.0)
             df['days_cash_on_hand'] = df['days_cash_on_hand'].fillna(30)
@@ -61,7 +61,7 @@ class GroqHospitalAnalyzer:
         hospital_data: pd.Series, 
         hospital_id: str = None
     ) -> Dict:
-        """Analyze a single hospital's financial performance."""
+        """Analyze single hospital's financial performance."""
         
         hospital_id = hospital_id or str(hospital_data.get('provider_id', 'Unknown'))
         
@@ -130,7 +130,7 @@ Format professionally for healthcare executives. Be specific and actionable.
         max_hospitals: int = 10,
         year: int = 2023
     ) -> Dict:
-        """Analyze multiple hospitals in a portfolio."""
+        """Analyze multiple hospitals in portfolio."""
         
         print(f"🏥 Analyzing Hospital Portfolio ({max_hospitals} hospitals)")
         print("=" * 60)
@@ -199,10 +199,9 @@ Format professionally for healthcare executives. Be specific and actionable.
             print(f"   📊 {json_file}")
             
             return report_data
-        
         else:
             print("❌ No successful analyses completed")
-            return {'success': False, 'error': 'No analyses completed'}
+            return {}
     
     def _call_groq_api(
         self, 
@@ -212,9 +211,14 @@ Format professionally for healthcare executives. Be specific and actionable.
     ) -> Dict:
         """Make API call to Groq."""
         
-        data = {
-            "messages": [{"role": "user", "content": prompt}],
+        payload = {
             "model": self.model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
             "max_tokens": max_tokens,
             "temperature": temperature
         }
@@ -223,16 +227,16 @@ Format professionally for healthcare executives. Be specific and actionable.
             response = requests.post(
                 self.base_url,
                 headers=self.headers,
-                json=data,
+                json=payload,
                 timeout=30
             )
             
             if response.status_code == 200:
-                result = response.json()
+                data = response.json()
                 return {
                     'success': True,
-                    'content': result["choices"][0]["message"]["content"],
-                    'tokens': result.get("usage", {}).get("total_tokens", 0)
+                    'content': data['choices'][0]['message']['content'],
+                    'tokens': data['usage']['total_tokens']
                 }
             else:
                 return {
@@ -247,161 +251,110 @@ Format professionally for healthcare executives. Be specific and actionable.
             }
     
     def _generate_portfolio_summary(self, results: List[Dict], year: int) -> Dict:
-        """Generate portfolio-level summary statistics."""
+        """Generate portfolio-level summary."""
         
-        # Calculate portfolio metrics
-        operating_margins = [r['metrics']['operating_margin'] for r in results]
+        # Extract metrics
+        margins = [r['metrics']['operating_margin'] for r in results]
         current_ratios = [r['metrics']['current_ratio'] for r in results]
-        days_cash = [r['metrics']['days_cash_on_hand'] for r in results]
+        cash_days = [r['metrics']['days_cash_on_hand'] for r in results]
         
         return {
-            'total_hospitals': len(results),
-            'year': year,
             'portfolio_metrics': {
-                'avg_operating_margin': np.mean(operating_margins),
-                'median_operating_margin': np.median(operating_margins),
+                'avg_operating_margin': np.mean(margins),
+                'median_operating_margin': np.median(margins),
                 'avg_current_ratio': np.mean(current_ratios),
-                'avg_days_cash': np.mean(days_cash),
-                'hospitals_with_negative_margins': sum(1 for m in operating_margins if m < 0),
-                'hospitals_with_low_liquidity': sum(1 for d in days_cash if d < 30)
+                'avg_days_cash': np.mean(cash_days),
+                'hospitals_analyzed': len(results)
             },
-            'cost_analysis': {
-                'total_tokens': sum(r['tokens_used'] for r in results),
-                'total_cost_usd': sum(r['cost_usd'] for r in results),
-                'avg_cost_per_hospital': np.mean([r['cost_usd'] for r in results])
+            'risk_assessment': {
+                'hospitals_with_negative_margins': sum(1 for m in margins if m < 0),
+                'hospitals_with_low_liquidity': sum(1 for cr in current_ratios if cr < 1.0),
+                'hospitals_with_low_cash': sum(1 for cd in cash_days if cd < 30)
             }
         }
     
     def _save_markdown_report(self, report_data: Dict, file_path: Path):
-        """Save comprehensive markdown report."""
+        """Save formatted markdown report."""
         
         metadata = report_data['metadata']
-        summary = report_data['portfolio_summary']
+        portfolio = report_data['portfolio_summary']
         
-        content = f"""# Hospital Portfolio Financial Analysis Report
+        content = f"""# Hospital Portfolio Financial Analysis
+        
+**Analysis Date:** {metadata['timestamp'][:10]}  
+**Year Analyzed:** {metadata['year']}  
+**Hospitals:** {metadata['hospitals_analyzed']}  
+**Model:** {metadata['model']}  
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
-**Analysis Year:** {metadata['year']}  
-**Hospitals Analyzed:** {metadata['hospitals_analyzed']}  
-**AI Model:** Groq {self.model}
+## Portfolio Summary
 
-## Executive Summary
-
-AI-powered financial analysis of {summary['total_hospitals']} hospitals reveals portfolio performance and strategic recommendations.
-
-## Portfolio Performance Metrics
-
-### Financial Health Overview
-- **Average Operating Margin:** {summary['portfolio_metrics']['avg_operating_margin']:.2%}
-- **Median Operating Margin:** {summary['portfolio_metrics']['median_operating_margin']:.2%}
-- **Average Current Ratio:** {summary['portfolio_metrics']['avg_current_ratio']:.2f}
-- **Average Days Cash:** {summary['portfolio_metrics']['avg_days_cash']:.0f} days
+### Financial Performance
+- **Average Operating Margin:** {portfolio['portfolio_metrics']['avg_operating_margin']:.2%}
+- **Median Operating Margin:** {portfolio['portfolio_metrics']['median_operating_margin']:.2%}
+- **Average Current Ratio:** {portfolio['portfolio_metrics']['avg_current_ratio']:.2f}
+- **Average Days Cash:** {portfolio['portfolio_metrics']['avg_days_cash']:.0f} days
 
 ### Risk Assessment
-- **Hospitals with Negative Margins:** {summary['portfolio_metrics']['hospitals_with_negative_margins']}/{summary['total_hospitals']} ({summary['portfolio_metrics']['hospitals_with_negative_margins']/summary['total_hospitals']*100:.1f}%)
-- **Hospitals with Low Liquidity:** {summary['portfolio_metrics']['hospitals_with_low_liquidity']}/{summary['total_hospitals']} ({summary['portfolio_metrics']['hospitals_with_low_liquidity']/summary['total_hospitals']*100:.1f}%)
+- **Hospitals with Negative Margins:** {portfolio['risk_assessment']['hospitals_with_negative_margins']}
+- **Hospitals with Low Liquidity:** {portfolio['risk_assessment']['hospitals_with_low_liquidity']}
+- **Hospitals with Low Cash:** {portfolio['risk_assessment']['hospitals_with_low_cash']}
 
 ## Individual Hospital Analyses
 
 """
         
-        for i, result in enumerate(report_data['individual_analyses'], 1):
-            content += f"""### {i}. Hospital {result['hospital_id']}
+        # Add individual analyses
+        for i, analysis in enumerate(report_data['individual_analyses'], 1):
+            content += f"""### Hospital {i}: {analysis['hospital_id']}
 
-**Financial Metrics:**
-- Operating Margin: {result['metrics']['operating_margin']:.2%}
-- Current Ratio: {result['metrics']['current_ratio']:.2f}
-- Days Cash: {result['metrics']['days_cash_on_hand']:.0f} days
-- Total Margin: {result['metrics']['total_margin']:.2%}
+**Key Metrics:**
+- Operating Margin: {analysis['metrics']['operating_margin']:.2%}
+- Current Ratio: {analysis['metrics']['current_ratio']:.2f}
+- Days Cash: {analysis['metrics']['days_cash_on_hand']:.0f}
 
-**AI Analysis:**
-{result['analysis']}
-
-**Analysis Cost:** {result['tokens_used']} tokens (${result['cost_usd']:.6f})
+**Analysis:**
+{analysis['analysis']}
 
 ---
 
 """
         
-        content += f"""## Cost Analysis
-
-- **Total Tokens Used:** {metadata['total_tokens']}
-- **Total Analysis Cost:** ${metadata['total_cost_usd']:.6f}
-- **Average Cost per Hospital:** ${summary['cost_analysis']['avg_cost_per_hospital']:.6f}
-
-## Recommendations
-
-### Immediate Actions
-1. **Priority Review:** Focus on hospitals with negative operating margins
-2. **Liquidity Monitoring:** Implement weekly cash flow monitoring for low-liquidity hospitals
-3. **Best Practice Sharing:** Identify and replicate strategies from top performers
-
-### Strategic Initiatives
-1. **Quarterly AI Analysis:** Implement regular AI-powered financial assessments
-2. **Predictive Monitoring:** Use trends to identify at-risk hospitals early
-3. **Benchmarking:** Compare performance against industry standards
-
----
-*Report generated using Groq AI - {metadata['timestamp']}*
+        # Add footer
+        content += f"""
+## Analysis Metadata
+- **Total Tokens Used:** {metadata['total_tokens']:,}
+- **Total Cost:** ${metadata['total_cost_usd']:.6f}
+- **Provider:** {metadata['provider']}
 """
         
         with open(file_path, 'w') as f:
             f.write(content)
 
-
 def main():
-    """Main CLI interface for hospital analysis."""
-    
-    parser = argparse.ArgumentParser(description='Hospital Financial Analysis using Groq AI')
-    parser.add_argument('--mode', choices=['single', 'portfolio'], default='portfolio',
-                       help='Analysis mode: single hospital or portfolio')
-    parser.add_argument('--hospitals', type=int, default=5,
-                       help='Number of hospitals to analyze in portfolio mode')
-    parser.add_argument('--year', type=int, default=2023,
-                       help='Year of data to analyze')
-    parser.add_argument('--hospital-id', type=str,
-                       help='Specific hospital ID for single mode')
+    """Main execution function."""
+    parser = argparse.ArgumentParser(description="Hospital Financial Analysis using Groq API")
+    parser.add_argument('--hospitals', type=int, default=5, help='Number of hospitals to analyze')
+    parser.add_argument('--year', type=int, default=2023, help='Year to analyze')
+    parser.add_argument('--demo', action='store_true', help='Run demo analysis')
     
     args = parser.parse_args()
     
     try:
         analyzer = GroqHospitalAnalyzer()
         
-        if args.mode == 'portfolio':
-            result = analyzer.analyze_portfolio(
-                max_hospitals=args.hospitals,
-                year=args.year
-            )
-            
-        elif args.mode == 'single':
-            df = analyzer.load_hospital_data(args.year)
-            
-            if args.hospital_id:
-                # Find specific hospital
-                hospital_row = df[df['provider_id'] == args.hospital_id]
-                if hospital_row.empty:
-                    print(f"❌ Hospital {args.hospital_id} not found")
-                    return
-                hospital_data = hospital_row.iloc[0]
-            else:
-                # Use first hospital
-                hospital_data = df.iloc[0]
-            
-            result = analyzer.analyze_single_hospital(hospital_data)
-            
-            if result['success']:
-                print(f"\n🏥 Analysis for Hospital {result['hospital_id']}")
-                print("=" * 50)
-                print(result['analysis'])
-                print(f"\n💰 Cost: {result['tokens_used']} tokens (${result['cost_usd']:.6f})")
-            else:
-                print(f"❌ Analysis failed: {result['error']}")
+        if args.demo:
+            print("🚀 Running Demo Analysis...")
+            result = analyzer.analyze_portfolio(max_hospitals=3, year=args.year)
+        else:
+            result = analyzer.analyze_portfolio(max_hospitals=args.hospitals, year=args.year)
         
-        print(f"\n🎉 Analysis complete! Check the reports/ directory for detailed results.")
-        
+        if result:
+            print("\n✅ Analysis completed successfully!")
+        else:
+            print("\n❌ Analysis failed!")
+            
     except Exception as e:
         print(f"❌ Error: {e}")
-
 
 if __name__ == "__main__":
     main() 

@@ -1,11 +1,8 @@
 #!/usr/bin/env uv run python
 """
-Enhanced Feature Engineering Pipeline - Main Script
-==================================================
-Generates 147 features (33 original + 114 enhanced) with complete Altman Z-Score 
-components and automated Phase 4 validation.
+Enhanced Feature Engineering Pipeline
 
-Usage: uv run python run_enhanced_feature_engineering.py
+Generates 147 features with Altman Z-Score components and time-series features.
 """
 
 import pandas as pd
@@ -149,7 +146,7 @@ def validate_phase4_completion(enhanced_data: pd.DataFrame) -> Dict:
     return phase4_validation
 
 def create_summary_report(original_data: pd.DataFrame, enhanced_data: pd.DataFrame) -> None:
-    """Create summary report with Phase 4 validation."""
+    """Create enhancement summary report."""
     logger.info("📊 Creating enhancement summary report...")
     
     original_features = len(original_data.columns)
@@ -198,9 +195,10 @@ def create_summary_report(original_data: pd.DataFrame, enhanced_data: pd.DataFra
     
     missing_altman = [c for c in ['z_working_capital_ratio', 'z_retained_earnings_ratio', 
                                   'z_ebit_ratio', 'z_equity_to_liability_ratio', 'z_sales_to_assets_ratio'] 
-                     if c not in phase4_status['altman_z_score_components']]
+                      if c not in phase4_status['altman_z_score_components']]
+    
     if missing_altman:
-        report.append("\n### Missing Altman Components:")
+        report.append("\n### Missing Altman Z-Score Components:")
         for component in missing_altman:
             report.append(f"- ❌ `{component}`")
     
@@ -211,33 +209,11 @@ def create_summary_report(original_data: pd.DataFrame, enhanced_data: pd.DataFra
     
     for category, features in feature_categories.items():
         if features:
-            report.append(f"### {category} ({len(features)} features)")
-            # Show data coverage for sample features
-            for feat in features[:3]:
-                non_null = enhanced_data[feat].notna().sum()
-                coverage = non_null / len(enhanced_data) * 100
-                report.append(f"- `{feat}`: {coverage:.1f}% coverage")
-            if len(features) > 3:
-                report.append(f"- ... and {len(features) - 3} more")
-            report.append("")
-    
-    # Top features by data coverage
-    coverage_analysis = []
-    for col in new_feature_cols:
-        non_null = enhanced_data[col].notna().sum()
-        coverage = non_null / len(enhanced_data) * 100
-        coverage_analysis.append((col, coverage))
-    
-    coverage_analysis.sort(key=lambda x: x[1], reverse=True)
-    
-    report.extend([
-        "## Data Coverage Analysis",
-        "Top 10 new features by data coverage:",
-        ""
-    ])
-    
-    for feat, coverage in coverage_analysis[:10]:
-        report.append(f"- `{feat}`: {coverage:.1f}%")
+            report.append(f"\n### {category} ({len(features)} features)")
+            for feature in features[:5]:
+                report.append(f"- `{feature}`")
+            if len(features) > 5:
+                report.append(f"- ... and {len(features) - 5} more")
     
     # Save report
     report_path = Path("reports/enhanced_feature_engineering_report.md")
@@ -246,65 +222,30 @@ def create_summary_report(original_data: pd.DataFrame, enhanced_data: pd.DataFra
     with open(report_path, 'w') as f:
         f.write('\n'.join(report))
     
-    logger.info(f"📄 Report saved to {report_path}")
+    logger.info(f"📄 Summary report saved: {report_path}")
 
 def main():
     """Main execution function."""
     logger.info("🚀 Starting Enhanced Feature Engineering Pipeline")
-    logger.info("=" * 60)
     
     try:
-        # Step 1: Load existing features
-        logger.info("📂 Step 1: Loading existing feature data...")
+        # Load existing features
         original_data = load_existing_features()
         
-        # Step 2: Generate enhanced features
-        logger.info("🔬 Step 2: Generating enhanced time-series features...")
+        # Generate enhanced features
         enhanced_data = generate_enhanced_features(original_data)
         
-        # Step 3: Save enhanced features
-        logger.info("💾 Step 3: Saving enhanced feature files...")
+        # Save enhanced features
         save_enhanced_features(enhanced_data)
         
-        # Step 4: Create summary report
-        logger.info("📊 Step 4: Creating summary report...")
+        # Create summary report
         create_summary_report(original_data, enhanced_data)
         
-        # Step 5: Validate Phase 4 completion
-        logger.info("🔍 Step 5: Validating Phase 4 completion...")
-        phase4_status = validate_phase4_completion(enhanced_data)
-        
-        # Log Phase 4 status
-        altman_complete = len(phase4_status['altman_z_score_components']) == 5
-        logger.info(f"📋 Phase 4 Validation Results:")
-        logger.info(f"   🎯 Altman Z-Score: {'✅ Complete' if altman_complete else '⚠️ Partial'} ({len(phase4_status['altman_z_score_components'])}/5)")
-        logger.info(f"   🏥 Healthcare Ratios: {len(phase4_status['healthcare_specific_ratios'])} implemented")
-        logger.info(f"   📈 Time-Series Features: {len(set(phase4_status['time_series_features']))} unique")
-        logger.info(f"   📊 Volatility Measures: {len(set(phase4_status['volatility_measures']))} unique")
-        logger.info(f"   📉 Growth Indicators: {len(set(phase4_status['growth_rates']))} unique")
-        
-        logger.info("✅ Enhanced Feature Engineering Pipeline Completed Successfully!")
-        logger.info("=" * 60)
-        
-        # Print Phase 4 status and next steps
-        status_symbol = "✅" if altman_complete else "⚠️"
-        print(f"\n{status_symbol} PHASE 4 STATUS:")
-        print(f"   Financial Indicators: {'Complete' if altman_complete else 'Partial'}")
-        print(f"   Time-Series Engineering: Complete")
-        print(f"   Total Enhanced Features: {len(enhanced_data.columns)}")
-        
-        print("\n🎯 NEXT STEPS:")
-        print("1. Run enhanced modeling: uv run python run_enhanced_modeling.py")
-        print("2. Compare model performance with enhanced features")
-        print("3. Update evaluation dashboards")
-        if not altman_complete:
-            print("4. ⚠️  Review missing Altman Z-Score components in feature engineering")
+        logger.info("🎉 Enhanced Feature Engineering Pipeline completed successfully!")
         
     except Exception as e:
         logger.error(f"❌ Pipeline failed: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        sys.exit(1)
+        raise
 
 if __name__ == "__main__":
     main() 

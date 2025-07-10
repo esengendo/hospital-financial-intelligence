@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Hospital Financial Intelligence - Modern Streamlit Dashboard
-Professional healthcare analytics dashboard with shadcn-inspired design
+Hospital Financial Intelligence - Modern Dashboard
+Professional healthcare analytics dashboard with modern design.
 """
 
 import streamlit as st
@@ -21,14 +21,14 @@ from dotenv import load_dotenv
 from typing import Dict
 from datetime import datetime
 
-# Add src to path for imports
+# Add src to path
 sys.path.append('src')
 
-# Import hospital name lookup utility (with error handling)
+# Import hospital name lookup utility
 try:
     from hospital_name_lookup import get_hospital_name, load_hospital_mapping, get_hospital_mapping_info
 except ImportError:
-    # Fallback functions if hospital_name_lookup is not available
+    # Fallback functions
     def get_hospital_name(oshpd_id):
         return f"Hospital_{oshpd_id}"
     def load_hospital_mapping():
@@ -47,13 +47,13 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Modern CSS styling inspired by shadcn/ui
+# Modern CSS styling
 st.markdown("""
 <style>
-    /* Import Inter font for professional business typography */
+    /* Import Inter font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
-    /* Global styles - Clean white background with business focus */
+    /* Global styles */
     .stApp {
         background-color: #ffffff;
         color: #1e293b;
@@ -83,7 +83,7 @@ st.markdown("""
         background-color: #ffffff;
     }
     
-    /* Override Streamlit's default dark selectbox */
+    /* Override Streamlit's default selectbox */
     div[data-baseweb="select"] {
         background-color: #ffffff !important;
     }
@@ -98,7 +98,7 @@ st.markdown("""
         color: #0f172a !important;
     }
     
-    /* Professional business typography */
+    /* Professional typography */
     .stMarkdown, .stText, p, div, span {
         color: #1e293b !important;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -108,7 +108,7 @@ st.markdown("""
         letter-spacing: 0.01em;
     }
     
-    /* Business-focused headings */
+    /* Headings */
     h1, h2, h3, h4, h5, h6 {
         color: #0f172a !important;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -117,7 +117,7 @@ st.markdown("""
         line-height: 1.2 !important;
     }
     
-    /* Section headers with professional styling */
+    /* Section headers */
     .section-header {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 1.5rem !important;
@@ -129,7 +129,7 @@ st.markdown("""
         padding-bottom: 0.5rem;
     }
     
-    /* Button styling for shadcn/ui look */
+    /* Button styling */
     .stButton > button {
         background-color: #0f172a;
         color: #ffffff;
@@ -157,7 +157,7 @@ st.markdown("""
         background-color: #f8fafc;
     }
     
-    /* Card components - Clean shadcn/ui style */
+    /* Card components */
     .metric-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;

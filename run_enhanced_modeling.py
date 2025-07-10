@@ -1,11 +1,8 @@
 #!/usr/bin/env uv run python
 """
-Enhanced ML Pipeline - Main Modeling Script (Phase 5)
-====================================================
-Complete Phase 5 implementation with ensemble methods, advanced imbalanced 
-data techniques, and comprehensive explainability using 147 enhanced features.
+Enhanced ML Pipeline - Modeling Script
 
-Usage: uv run python run_enhanced_modeling.py
+Complete ML implementation with ensemble methods and explainability using 147 enhanced features.
 """
 
 import pandas as pd
@@ -72,7 +69,7 @@ def compare_feature_sets() -> None:
         original_sample = pd.read_parquet(original_files[0])
         original_features = len(original_sample.columns)
     else:
-        original_features = 33  # Known from previous runs
+        original_features = 33
     
     # Load enhanced features
     enhanced_files = list(Path("data/features_enhanced").glob("features_enhanced_*.parquet"))
@@ -106,7 +103,7 @@ def train_enhanced_model(data: pd.DataFrame) -> Tuple[Dict, str]:
     """Train XGBoost model with enhanced features."""
     logger.info("🤖 Training enhanced XGBoost model...")
     
-    # Initialize ModelTrainer with enhanced features
+    # Initialize ModelTrainer
     trainer = ModelTrainer(data)
     
     # Create target variable
@@ -134,12 +131,12 @@ def train_enhanced_model(data: pd.DataFrame) -> Tuple[Dict, str]:
     logger.info("📈 Evaluating enhanced model performance...")
     results = trainer.evaluate_model()
     
-    # Generate predictions for all sets
+    # Generate predictions
     train_pred = trainer.best_model.predict_proba(trainer.X_train_scaled)[:, 1]
     test_pred = trainer.best_model.predict_proba(trainer.X_test_scaled)[:, 1]
     val_pred = trainer.best_model.predict_proba(trainer.X_val_scaled)[:, 1]
     
-    # Calculate comprehensive metrics
+    # Calculate metrics
     from sklearn.metrics import roc_auc_score, average_precision_score
     
     enhanced_results = {
@@ -175,135 +172,108 @@ def generate_enhanced_evaluation(data: pd.DataFrame, model_path: str) -> None:
     trainer.create_target_variable()
     trainer.split_data()
     
-    # Generate SHAP analysis with enhanced features
+    # Generate SHAP analysis
     logger.info("🔍 Generating SHAP analysis for enhanced features...")
     
     import shap
     import matplotlib.pyplot as plt
     
-    # Create SHAP explainer
-    explainer = shap.TreeExplainer(model)
+    # Create SHAP explainer - extract classifier from pipeline
+    if hasattr(model, 'named_steps'):
+        classifier = model.named_steps['classifier']
+        explainer = shap.TreeExplainer(classifier)
+    else:
+        explainer = shap.TreeExplainer(model)
     config = get_config()
     shap_values = explainer.shap_values(trainer.X_test_scaled.sample(min(500, len(trainer.X_test_scaled)), random_state=config.random_seed))
     
-    # Enhanced feature importance analysis
-    feature_importance = pd.DataFrame({
+    # Feature importance analysis
+    if hasattr(model, 'named_steps'):
+        classifier = model.named_steps['classifier']
+        feature_importances = classifier.feature_importances_
+    else:
+        feature_importances = model.feature_importances_
+    
+    feature_importance_df = pd.DataFrame({
         'feature': trainer.X_test_scaled.columns,
-        'importance': model.feature_importances_,
-        'shap_importance': np.abs(shap_values).mean(0)
-    }).sort_values('shap_importance', ascending=False)
+        'importance': feature_importances,
+        'category': [categorize_feature(f) for f in trainer.X_test_scaled.columns]
+    }).sort_values('importance', ascending=False)
     
-    # Categorize features for analysis
-    feature_importance['category'] = feature_importance['feature'].apply(categorize_feature)
+    # Save feature importance analysis
+    output_dir = Path("reports")
+    output_dir.mkdir(exist_ok=True)
     
-    # Save enhanced visualizations
-    vis_dir = Path("visuals/enhanced_model_evaluation")
-    vis_dir.mkdir(parents=True, exist_ok=True)
+    feature_importance_df.to_csv(output_dir / "enhanced_feature_importance.csv", index=False)
     
-    # 1. Enhanced SHAP summary plot
-    plt.figure(figsize=(12, 10))
-    shap.summary_plot(shap_values, trainer.X_test_scaled, max_display=20, show=False)
-    plt.title('Enhanced Model: SHAP Feature Importance (Top 20)', fontsize=14, fontweight='bold')
+    # Category importance analysis
+    category_importance = feature_importance_df.groupby('category')['importance'].agg(['sum', 'mean', 'count']).sort_values('sum', ascending=False)
+    category_importance.to_csv(output_dir / "enhanced_category_importance.csv")
+    
+    # Generate SHAP plots
+    visuals_dir = Path("visuals/enhanced_model_evaluation")
+    visuals_dir.mkdir(parents=True, exist_ok=True)
+    
+    # SHAP summary plot
+    plt.figure(figsize=(12, 8))
+    shap.summary_plot(shap_values, trainer.X_test_scaled, show=False, max_display=20)
     plt.tight_layout()
-    plt.savefig(vis_dir / 'enhanced_shap_summary.png', dpi=300, bbox_inches='tight')
+    plt.savefig(visuals_dir / "enhanced_shap_summary.png", dpi=300, bbox_inches='tight')
     plt.close()
     
-    # 2. Feature category analysis
-    category_importance = feature_importance.groupby('category').agg({
-        'shap_importance': ['sum', 'mean', 'count']
-    }).round(3)
-    category_importance.columns = ['total_importance', 'avg_importance', 'feature_count']
-    category_importance = category_importance.sort_values('total_importance', ascending=False)
-    
-    print(f"\n🎯 ENHANCED FEATURE CATEGORY ANALYSIS:")
-    print(category_importance)
-    
-    # 3. Top features comparison
-    print(f"\n🏆 TOP 15 ENHANCED FEATURES (by SHAP importance):")
-    for i, row in feature_importance.head(15).iterrows():
-        print(f"{row.name+1:2d}. {row['feature']:40} ({row['category']}) - SHAP: {row['shap_importance']:.3f}")
-    
-    # Save detailed results
-    results_dir = Path("reports")
-    results_dir.mkdir(exist_ok=True)
-    
-    feature_importance.to_csv(results_dir / "enhanced_feature_importance.csv", index=False)
-    category_importance.to_csv(results_dir / "enhanced_category_importance.csv")
-    
-    logger.info(f"📄 Enhanced evaluation results saved to {results_dir}/")
+    logger.info(f"✅ Enhanced evaluation saved to {output_dir} and {visuals_dir}")
 
 def categorize_feature(feature_name: str) -> str:
-    """Categorize a feature based on its name."""
-    if any(x in feature_name for x in ['_rolling_', '_dev_from_']):
+    """Categorize feature by type."""
+    if '_rolling_' in feature_name:
         return 'Rolling Averages'
-    elif any(x in feature_name for x in ['_volatility_', '_cv_']):
-        return 'Volatility Measures'
+    elif '_volatility_' in feature_name or '_cv_' in feature_name:
+        return 'Volatility'
     elif '_trend_' in feature_name:
         return 'Trend Analysis'
     elif '_momentum_' in feature_name:
-        return 'Momentum Indicators'
+        return 'Momentum'
     elif '_stability_' in feature_name:
-        return 'Stability Scores'
-    elif any(x in feature_name for x in ['_percentile_', '_bottom_10']):
+        return 'Stability'
+    elif '_percentile_' in feature_name or '_bottom_10' in feature_name:
         return 'Industry Percentiles'
+    elif '_dev_from_' in feature_name:
+        return 'Deviations'
     elif feature_name.startswith('z_'):
         return 'Altman Z-Score'
-    elif '_yoy_change' in feature_name:
-        return 'YoY Changes'
     else:
-        return 'Core Financial Ratios'
+        return 'Core Financial'
 
 def main():
     """Main execution function."""
-    logger.info("🚀 Starting Enhanced Modeling Pipeline")
-    logger.info("=" * 60)
+    logger.info("🚀 Starting Enhanced ML Pipeline")
     
     try:
-        # Step 1: Load enhanced features
-        logger.info("📂 Step 1: Loading enhanced feature dataset...")
+        # Load enhanced features
         data = load_enhanced_features()
         
-        # Step 2: Compare feature sets
-        logger.info("📊 Step 2: Analyzing feature enhancements...")
+        # Compare feature sets
         compare_feature_sets()
         
-        # Step 3: Train enhanced model
-        logger.info("🤖 Step 3: Training enhanced XGBoost model...")
-        results, model_path = train_enhanced_model(data)
+        # Train enhanced model
+        enhanced_results, model_path = train_enhanced_model(data)
         
-        # Step 4: Print performance comparison
-        print(f"\n🎯 ENHANCED MODEL PERFORMANCE:")
-        print(f"ROC-AUC (Test):  {results['test_roc_auc']:.3f}")
-        print(f"PR-AUC (Test):   {results['test_pr_auc']:.3f}")
-        print(f"ROC-AUC (Val):   {results['val_roc_auc']:.3f}")
-        print(f"PR-AUC (Val):    {results['val_pr_auc']:.3f}")
-        print(f"Features Used:   {results['feature_count']}")
-        
-        # Step 5: Generate enhanced evaluation
-        logger.info("📊 Step 5: Generating enhanced evaluation...")
+        # Generate evaluation
         generate_enhanced_evaluation(data, model_path)
         
-        logger.info("✅ Enhanced Modeling Pipeline Completed Successfully!")
-        logger.info("=" * 60)
+        # Print results
+        print(f"\n🎯 ENHANCED MODEL PERFORMANCE:")
+        print(f"Test ROC-AUC:  {enhanced_results['test_roc_auc']:.3f}")
+        print(f"Test PR-AUC:   {enhanced_results['test_pr_auc']:.3f}")
+        print(f"Val ROC-AUC:   {enhanced_results['val_roc_auc']:.3f}")
+        print(f"Val PR-AUC:    {enhanced_results['val_pr_auc']:.3f}")
+        print(f"Features Used: {enhanced_results['feature_count']}")
         
-        # Print next steps
-        print(f"\n🎯 RESULTS SUMMARY:")
-        print(f"✅ Enhanced model trained with {results['feature_count']} features")
-        print(f"✅ Performance metrics calculated and saved")
-        print(f"✅ SHAP analysis generated for feature importance")
-        print(f"✅ Model saved to: {model_path}")
-        
-        print(f"\n📊 NEXT STEPS:")
-        print("1. Compare with baseline model performance")
-        print("2. Analyze enhanced feature importance patterns")
-        print("3. Validate improved time-series feature performance")
-        print("4. Prepare for deployment with enhanced feature set")
+        logger.info("🎉 Enhanced ML Pipeline completed successfully!")
         
     except Exception as e:
-        logger.error(f"❌ Enhanced modeling pipeline failed: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        sys.exit(1)
+        logger.error(f"❌ Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main() 

@@ -1,0 +1,103 @@
+feature,importance,shap_importance,category
+operating_margin_rolling_2y,0.33962736,3.2377217,Rolling Averages
+operating_margin_rolling_3y,0.042517897,2.4259655,Rolling Averages
+operating_margin,0.015121637,1.1001958,Core Financial Ratios
+total_margin_rolling_3y,0.15679932,0.9429839,Rolling Averages
+operating_margin_stability_score,0.016575605,0.6947988,Stability Scores
+total_margin_rolling_2y,0.39645892,0.6790399,Rolling Averages
+times_interest_earned_rolling_2y,0.0018774413,0.34987193,Rolling Averages
+total_margin,0.0058200145,0.3175426,Core Financial Ratios
+times_interest_earned_rolling_3y,0.0025624074,0.14315756,Rolling Averages
+operating_margin_industry_percentile,0.0033761305,0.062283114,Core Financial Ratios
+composite_stability_score,0.01756487,0.02676724,Stability Scores
+times_interest_earned,0.00048147218,0.022108609,Core Financial Ratios
+days_cash_on_hand,6.586438e-05,0.011631693,Core Financial Ratios
+days_cash_on_hand_rolling_2y,0.00017142517,0.0093968315,Rolling Averages
+days_cash_on_hand_stability_score,6.472407e-05,0.0026380871,Stability Scores
+times_interest_earned_industry_percentile,0.0008652941,0.0018819671,Core Financial Ratios
+times_interest_earned_stability_score,4.0610583e-05,0.0013501934,Stability Scores
+days_cash_on_hand_rolling_3y,9.014623e-06,0.0002672112,Rolling Averages
+return_on_assets_cv_5y,0.0,0.0,Volatility Measures
+operating_margin_trend_direction,0.0,0.0,Trend Analysis
+operating_margin_trend_3y,0.0,0.0,Trend Analysis
+asset_turnover_cv_5y,0.0,0.0,Volatility Measures
+asset_turnover_volatility_5y,0.0,0.0,Volatility Measures
+asset_turnover_cv_3y,0.0,0.0,Volatility Measures
+asset_turnover_volatility_3y,0.0,0.0,Volatility Measures
+times_interest_earned_momentum_direction,0.0,0.0,Momentum Indicators
+return_on_assets_volatility_5y,0.0,0.0,Volatility Measures
+return_on_assets_cv_3y,0.0,0.0,Volatility Measures
+return_on_assets_volatility_3y,0.0,0.0,Volatility Measures
+days_cash_on_hand_cv_5y,0.0,0.0,Volatility Measures
+days_cash_on_hand_volatility_5y,0.0,0.0,Volatility Measures
+days_cash_on_hand_industry_percentile,0.0,0.0,Core Financial Ratios
+days_cash_on_hand_cv_3y,0.0,0.0,Volatility Measures
+days_cash_on_hand_volatility_3y,0.0,0.0,Volatility Measures
+times_interest_earned_cv_5y,0.0,0.0,Volatility Measures
+operating_margin_trend_consistency,0.0,0.0,Trend Analysis
+times_interest_earned_bottom_10pct,0.0,0.0,Industry Percentiles
+total_margin_trend_3y,0.0,0.0,Trend Analysis
+days_cash_on_hand_trend_direction,0.0,0.0,Trend Analysis
+total_margin_momentum_direction,0.0,0.0,Momentum Indicators
+total_margin_momentum,0.0,0.0,Core Financial Ratios
+operating_margin_momentum_direction,0.0,0.0,Momentum Indicators
+operating_margin_momentum,0.0,0.0,Core Financial Ratios
+asset_turnover_trend_direction,0.0,0.0,Trend Analysis
+debt_to_assets_trend_direction,0.0,0.0,Trend Analysis
+return_on_assets_trend_direction,0.0,0.0,Trend Analysis
+current_ratio_trend_direction,0.0,0.0,Trend Analysis
+times_interest_earned_momentum,0.0,0.0,Core Financial Ratios
+times_interest_earned_trend_consistency,0.0,0.0,Trend Analysis
+times_interest_earned_trend_direction,0.0,0.0,Trend Analysis
+times_interest_earned_cv_3y,0.0,0.0,Volatility Measures
+times_interest_earned_trend_3y,0.0,0.0,Trend Analysis
+operating_margin_bottom_10pct,0.0,0.0,Industry Percentiles
+total_margin_trend_consistency,0.0,0.0,Trend Analysis
+total_margin_trend_direction,0.0,0.0,Trend Analysis
+times_interest_earned_volatility_5y,0.0,0.0,Volatility Measures
+operating_margin_cv_5y,0.0,0.0,Volatility Measures
+times_interest_earned_volatility_3y,0.0,0.0,Volatility Measures
+operating_margin_dev_from_2y_avg,0.0,0.0,Rolling Averages
+debt_to_assets_yoy_change,0.0,0.0,YoY Changes
+debt_to_equity_yoy_change,0.0,0.0,YoY Changes
+days_sales_outstanding_yoy_change,0.0,0.0,YoY Changes
+receivables_turnover_yoy_change,0.0,0.0,YoY Changes
+asset_turnover_yoy_change,0.0,0.0,YoY Changes
+return_on_equity_yoy_change,0.0,0.0,YoY Changes
+return_on_assets_yoy_change,0.0,0.0,YoY Changes
+total_margin_yoy_change,0.0,0.0,YoY Changes
+operating_margin_yoy_change,0.0,0.0,YoY Changes
+days_cash_on_hand_yoy_change,0.0,0.0,YoY Changes
+quick_ratio_yoy_change,0.0,0.0,YoY Changes
+current_ratio_yoy_change,0.0,0.0,YoY Changes
+z_sales_to_assets_ratio,0.0,0.0,Altman Z-Score
+z_equity_to_liability_ratio,0.0,0.0,Altman Z-Score
+z_ebit_ratio,0.0,0.0,Altman Z-Score
+z_retained_earnings_ratio,0.0,0.0,Altman Z-Score
+z_working_capital_ratio,0.0,0.0,Altman Z-Score
+asset_turnover,0.0,0.0,Core Financial Ratios
+return_on_assets,0.0,0.0,Core Financial Ratios
+times_interest_earned_yoy_change,0.0,0.0,YoY Changes
+operating_margin_dev_from_3y_avg,0.0,0.0,Rolling Averages
+total_margin_cv_5y,0.0,0.0,Volatility Measures
+total_margin_dev_from_2y_avg,0.0,0.0,Rolling Averages
+total_margin_volatility_5y,0.0,0.0,Volatility Measures
+total_margin_cv_3y,0.0,0.0,Volatility Measures
+total_margin_volatility_3y,0.0,0.0,Volatility Measures
+operating_margin_volatility_5y,0.0,0.0,Volatility Measures
+operating_margin_cv_3y,0.0,0.0,Volatility Measures
+operating_margin_volatility_3y,0.0,0.0,Volatility Measures
+asset_turnover_dev_from_3y_avg,0.0,0.0,Rolling Averages
+asset_turnover_rolling_3y,0.0,0.0,Rolling Averages
+asset_turnover_dev_from_2y_avg,0.0,0.0,Rolling Averages
+asset_turnover_rolling_2y,0.0,0.0,Rolling Averages
+return_on_assets_dev_from_3y_avg,0.0,0.0,Rolling Averages
+return_on_assets_rolling_3y,0.0,0.0,Rolling Averages
+return_on_assets_dev_from_2y_avg,0.0,0.0,Rolling Averages
+return_on_assets_rolling_2y,0.0,0.0,Rolling Averages
+days_cash_on_hand_dev_from_3y_avg,0.0,0.0,Rolling Averages
+days_cash_on_hand_dev_from_2y_avg,0.0,0.0,Rolling Averages
+times_interest_earned_dev_from_3y_avg,0.0,0.0,Rolling Averages
+times_interest_earned_dev_from_2y_avg,0.0,0.0,Rolling Averages
+total_margin_dev_from_3y_avg,0.0,0.0,Rolling Averages
+days_cash_on_hand_bottom_10pct,0.0,0.0,Industry Percentiles
