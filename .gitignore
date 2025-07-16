@@ -47,3 +47,6 @@ htmlcov/
 .env.local
 # Environment variables (contains API keys)
 .env
+
+# Portfolio content (personal marketing materials)
+portfolio_content/

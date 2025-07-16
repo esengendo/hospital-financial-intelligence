@@ -1,0 +1,361 @@
+{
+  "overview": {
+    "total_records": 9483,
+    "year_range": null,
+    "data_quality": 39.139429215653706
+  },
+  "hadr_analysis": {
+    "dataset_overview": {
+      "total_columns": 16878,
+      "numeric_columns": 0,
+      "total_records": 9483,
+      "analysis_timestamp": "2025-07-14T10:27:23.966571"
+    },
+    "hadr_structure_validation": {
+      "P5": {
+        "name": "Balance Sheet - Unrestricted Fund",
+        "fields": 164,
+        "pcl_range": "BPS-BVZ"
+      },
+      "P6": {
+        "name": "Balance Sheet - Restricted Fund",
+        "fields": 90,
+        "pcl_range": "CJY-CNJ"
+      },
+      "P7": {
+        "name": "Changes in Equity",
+        "fields": 54,
+        "pcl_range": "CNK-CPS"
+      },
+      "P8": {
+        "name": "Income Statement",
+        "fields": 182,
+        "pcl_range": "CSR-CZQ"
+      },
+      "P9": {
+        "name": "Cash Flow Statement",
+        "fields": 99,
+        "pcl_range": "CZR-DDL"
+      },
+      "P10": {
+        "name": "Revenue & Costs Summary",
+        "fields": 1350,
+        "pcl_range": "DDM-FDG"
+      },
+      "P12": {
+        "name": "Patient Revenue by Payer",
+        "fields": 1577,
+        "pcl_range": "FDH-HLX"
+      },
+      "P17": {
+        "name": "Expense Trial Balance - Revenue Centers",
+        "fields": 1102,
+        "pcl_range": "JBU-KRP"
+      },
+      "P18": {
+        "name": "Expense Trial Balance - Non-Revenue Centers",
+        "fields": 884,
+        "pcl_range": "KRQ-LXC"
+      }
+    },
+    "pcl_validated_mappings": {
+      "REV_TOT_PT_REV": {
+        "found": true,
+        "pcl_reference": "P12_C23_L415",
+        "hadr_section": "Patient Revenue (12)",
+        "description": "Gross Patient Revenue_Total Patient Revenue",
+        "metric_type": "Revenue",
+        "completeness_pct": 28.2,
+        "total_records": 9483,
+        "non_null_records": "2673",
+        "data_type": "object"
+      },
+      "PY_TOT_OP_EXP": {
+        "found": true,
+        "pcl_reference": "P8_C2_L200",
+        "hadr_section": "Income Statement (8)",
+        "description": "Prior Year_Income Statement_Total Operating Expenses",
+        "metric_type": "Expense",
+        "completeness_pct": 28.2,
+        "total_records": 9483,
+        "non_null_records": "2673",
+        "data_type": "object"
+      },
+      "EQ_UNREST_FND_NET_INCOME": {
+        "found": true,
+        "pcl_reference": "P7_C1_L55",
+        "hadr_section": "Changes in Equity (7)",
+        "description": "Changes in Equity_Unrestricted Fund_Net Income (Loss)",
+        "metric_type": "Income",
+        "completeness_pct": 28.2,
+        "total_records": 9483,
+        "non_null_records": "2673",
+        "data_type": "object"
+      },
+      "PY_SP_PURP_FND_OTH_ASSETS": {
+        "found": true,
+        "pcl_reference": "P6_C2_L30",
+        "hadr_section": "Balance Sheet (6)",
+        "description": "Prior Year_Specific Purpose Fund_Other Assets",
+        "metric_type": "Asset",
+        "completeness_pct": 28.2,
+        "total_records": 9483,
+        "non_null_records": "2673",
+        "data_type": "object"
+      },
+      "CASH_FLOW_SPECIFY_OTH_OP_L102": {
+        "found": true,
+        "pcl_reference": "P9_C91_L102",
+        "hadr_section": "Cash Flows (9)",
+        "description": "Cash Flow_Specify_Other Cash from Operating Activities - Line 102",
+        "metric_type": "Cash Flow",
+        "completeness_pct": 28.2,
+        "total_records": 9483,
+        "non_null_records": "2673",
+        "data_type": "object"
+      },
+      "PY_SP_PURP_FND_TOT_LIAB_EQ": {
+        "found": true,
+        "pcl_reference": "P6_C4_L75",
+        "hadr_section": "Balance Sheet (6)",
+        "description": "Prior Year_Specific Purpose Fund_Total Specific Purpose Fund Liabilities and Fund Balance",
+        "metric_type": "Liability",
+        "completeness_pct": 28.2,
+        "total_records": 9483,
+        "non_null_records": "2673",
+        "data_type": "object"
+      }
+    },
+    "column_completeness": {},
+    "section_analysis": {
+      "Revenue Fields": {
+        "column_count": 4110,
+        "columns": [
+          "COST_STATS_GR_REV_2_NONOP_COST_CTR",
+          "COST_STATS_GR_REV_2_NONOP_COST_CTR_1",
+          "COST_STATS_GR_REV_2_NONOP_COST_CTR_2",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_INT_OTH",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_INSUR_OTH",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_LIC_TAX",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_DEP_AMORT",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_LEASE_RNTL",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_INT_WRKCAP",
+          "COST_ALL_SHORT_OTH_OP_REV_P14_L215_HOSP_ADM"
+        ],
+        "total_found": 4110
+      },
+      "Expense Fields": {
+        "column_count": 3006,
+        "columns": [
+          "MGMT_FIRM_EXPLN_L99",
+          "MGMT_FIRM_EXPLN_L100",
+          "MGMT_FIRM_EXPLN_L101",
+          "MGMT_FIRM_EXPLN_L102",
+          "EQ_ENDOW_FND_EXP_SPEC_PURP",
+          "EQ_ENDOW_FND_EXP_SPEC_PURP_1",
+          "EQ_ENDOW_FND_EXP_SPEC_PURP_2",
+          "PY_EXP_DLY_HSP",
+          "PY_EXP_AMBUL",
+          "PY_EXP_ANCIL"
+        ],
+        "total_found": 3006
+      },
+      "Asset Fields": {
+        "column_count": 8,
+        "columns": [
+          "PY_SP_PURP_FND_OTH_ASSETS",
+          "PY_PLANT_REP_FND_OTH_ASSETS",
+          "PY_ENDOW_FND_OTH_ASSETS",
+          "PY_SP_PURP_FND_OTH_ASSETS_1",
+          "PY_PLANT_REP_FND_OTH_ASSETS_1",
+          "PY_ENDOW_FND_OTH_ASSETS_1",
+          "PY_CHNG_ASSETS_LTD_USE",
+          "PY_CHNG_ASSETS_LTD_USE_1"
+        ],
+        "total_found": 8
+      },
+      "Liability Fields": {
+        "column_count": 20,
+        "columns": [
+          "PY_SP_PURP_FND_TOT_LIAB_EQ",
+          "PY_PLANT_REP_FND_TOT_LIAB_EQ",
+          "PY_ENDOW_FND_OTH_NONCURR_LIAB",
+          "PY_ENDOW_FND_TOT_LIAB_EQ",
+          "PY_SP_PURP_FND_TOT_LIAB_EQ_1",
+          "PY_PLANT_REP_FND_TOT_LIAB_EQ_1",
+          "PY_ENDOW_FND_OTH_NONCURR_LIAB_1",
+          "PY_ENDOW_FND_TOT_LIAB_EQ_1",
+          "PY_SP_PURP_FND_TOT_LIAB_EQ_2",
+          "PY_PLANT_REP_FND_TOT_LIAB_EQ_2"
+        ],
+        "total_found": 20
+      },
+      "Equity Fields": {
+        "column_count": 331,
+        "columns": [
+          "COST_STATS_CSS_REQ_PHARMCY",
+          "COST_STATS_RX_REQ_RESRCH_PROJ_ADM",
+          "COST_STATS_RX_REQ_ED_ADMIN_OFF",
+          "COST_STATS_RX_REQ_STD_HSNG",
+          "COST_STATS_RX_REQ_NONOP_COST_CTR",
+          "COST_STATS_CSS_REQ_PHARMCY_1",
+          "COST_STATS_RX_REQ_RESRCH_PROJ_ADM_1",
+          "COST_STATS_RX_REQ_ED_ADMIN_OFF_1",
+          "COST_STATS_RX_REQ_STD_HSNG_1",
+          "COST_STATS_POSTGRAD_STD_DUR_MED_EQ_1"
+        ],
+        "total_found": 331
+      },
+      "Cash Flow Fields": {
+        "column_count": 40,
+        "columns": [
+          "CASH_FLOW_SPECIFY_OTH_OP_L102",
+          "CASH_FLOW_SPECIFY_OTH_OP_L103",
+          "CASH_FLOW_SPECIFY_OTH_OP_L104",
+          "PY_NET_CASH_OP_ACTS",
+          "CASH_FLOW_SPECIFY_OTH_INVEST_L140",
+          "CASH_FLOW_SPECIFY_OTH_INVEST_L141",
+          "CASH_FLOW_SPECIFY_OTH_INVEST_L142",
+          "PY_NET_CASH_INVEST_ACTS",
+          "CASH_FLOW_SPECIFY_OTH_FIN_L190",
+          "CASH_FLOW_SPECIFY_OTH_FIN_L191"
+        ],
+        "total_found": 40
+      },
+      "Prior Year Fields": {
+        "column_count": 1006,
+        "columns": [
+          "COST_STATS_POSTGRAD_STD_RESP_THRPY_1",
+          "COST_STATS_POSTGRAD_STD_PHYS_THRPY_1",
+          "COST_STATS_POSTGRAD_STD_OCC_THRPY_1",
+          "COST_STATS_POSTGRAD_STD_ELECTROCONV_THRPY_1",
+          "COST_STATS_POSTGRAD_STD_PSYCH_GRPIND_THRPY_1",
+          "COST_STATS_POSTGRAD_STD_RESP_THRPY_2",
+          "COST_STATS_POSTGRAD_STD_PHYS_THRPY_2",
+          "COST_STATS_POSTGRAD_STD_OCC_THRPY_2",
+          "COST_STATS_POSTGRAD_STD_ELECTROCONV_THRPY_2",
+          "COST_STATS_POSTGRAD_STD_PSYCH_GRPIND_THRPY_2"
+        ],
+        "total_found": 1006
+      },
+      "Fund Fields": {
+        "column_count": 179,
+        "columns": [
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_1",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_2",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_3",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_4",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_5",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_6",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_7",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_8",
+          "COST_ALLOC_POSTGRAD_STD_TFR_REST_FND_OP_NONREV_9"
+        ],
+        "total_found": 179
+      },
+      "Patient Fields": {
+        "column_count": 1026,
+        "columns": [
+          "COST_STATS_DRY_LBS_PT_ACCTG",
+          "COST_STATS_DRY_LBS_PT_ACCTG_1",
+          "COST_STATS_DRY_LBS_PT_ACCTG_2",
+          "COST_STATS_DRY_LBS_PT_ACCTG_3",
+          "COST_STATS_POSTGRAD_STD_DRUGS_SOLD_TO_PT_1",
+          "COST_STATS_DRY_LBS_PT_ACCTG_4",
+          "COST_STATS_DRY_LBS_PT_ACCTG_5",
+          "COST_STATS_POSTGRAD_STD_DRUGS_SOLD_TO_PT_2",
+          "COST_STATS_DRY_LBS_PT_ACCTG_6",
+          "COST_STATS_POSTGRAD_STD_DRUGS_SOLD_TO_PT_3"
+        ],
+        "total_found": 1026
+      },
+      "Operating Fields": {
+        "column_count": 3099,
+        "columns": [
+          "COST_STATS_SQ_FT_SVCD_PLANT_OP",
+          "COST_STATS_DRY_LBS_OP_REG",
+          "COST_STATS_POSTGRAD_STD_OP_CHEM_DEP",
+          "COST_STATS_POSTGRAD_STD_HOSPICE_OP",
+          "COST_STATS_RX_REQ_NONOP_COST_CTR",
+          "COST_STATS_SQ_FT_SVCD_PLANT_OP_1",
+          "COST_STATS_DRY_LBS_OP_REG_1",
+          "COST_STATS_POSTGRAD_STD_OP_CHEM_DEP_1",
+          "COST_STATS_POSTGRAD_STD_HOSPICE_OP_1",
+          "COST_STATS_GR_REV_2_NONOP_COST_CTR"
+        ],
+        "total_found": 3099
+      }
+    },
+    "mapping_recommendations": {
+      "immediate_enhancements": [
+        {
+          "field": "TOT_GR_PT_REV",
+          "pcl": "Income Statement (P8)",
+          "benefit": "More standardized total gross patient revenue",
+          "priority": "High"
+        },
+        {
+          "field": "NET_PT_REV",
+          "pcl": "Income Statement (P8)",
+          "benefit": "Net patient revenue after deductions",
+          "priority": "High"
+        },
+        {
+          "field": "TOT_ASSETS",
+          "pcl": "Balance Sheet (P5)",
+          "benefit": "Standard total assets field",
+          "priority": "Medium"
+        },
+        {
+          "field": "TOT_LIAB",
+          "pcl": "Balance Sheet (P5)",
+          "benefit": "Standard total liabilities field",
+          "priority": "Medium"
+        }
+      ],
+      "future_opportunities": [
+        {
+          "section": "Cash Flow Statement (P9)",
+          "benefit": "Complete cash flow analysis capabilities",
+          "fields_available": 99
+        },
+        {
+          "section": "Revenue by Payer (P12)",
+          "benefit": "Detailed payer mix analysis",
+          "fields_available": 1577
+        },
+        {
+          "section": "Multi-Fund Balance Sheets (P5-P6)",
+          "benefit": "Fund-specific financial analysis",
+          "fields_available": 254
+        }
+      ]
+    },
+    "hadr_alignment": {
+      "pcl_fields_mapped": 6,
+      "total_pcl_fields": 6,
+      "alignment_score_pct": 100.0,
+      "status": "Excellent"
+    }
+  },
+  "financial_health": {
+    "status": "No metrics available"
+  },
+  "risk_assessment": {
+    "distribution": {
+      "Low Risk": 8363,
+      "Moderate Risk": 712,
+      "High Risk": 329,
+      "Critical Risk": 79
+    },
+    "percentages": {
+      "Low Risk": 88.18939154276073,
+      "Moderate Risk": 7.508172519244964,
+      "High Risk": 3.4693662343140357,
+      "Critical Risk": 0.83306970368027
+    },
+    "high_risk_count": 408,
+    "avg_risk_score": 0.16946114098913845
+  }
+}
