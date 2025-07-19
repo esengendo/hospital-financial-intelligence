@@ -1,30 +1,28 @@
-# Hospital Financial Intelligence Platform - Optimized Production Docker Image
-FROM python:3.10-slim-bullseye
+# Multi-stage Dockerfile for Hospital Financial Intelligence Platform
+# Stage 1: Build stage with all dependencies
+FROM python:3.10-slim-bullseye AS builder
 
-# Set environment variables for optimization
+# Set build environment variables
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DEBIAN_FRONTEND=noninteractive \
-    STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
-    STREAMLIT_SERVER_PORT=8502 \
-    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    DEBIAN_FRONTEND=noninteractive
 
-# Install only essential system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Create app directory
-WORKDIR /app
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy dependency files first for better layer caching
+# Copy dependency files
 COPY pyproject.toml ./
 
-# Install Python dependencies efficiently
+# Install Python dependencies
 RUN pip install --upgrade pip setuptools wheel && \
     pip install --no-cache-dir --compile \
     pandas>=2.0.0 \
@@ -44,26 +42,47 @@ RUN pip install --upgrade pip setuptools wheel && \
     fastparquet \
     xlrd \
     imbalanced-learn>=0.12.4 && \
-    # Install numba with fallback for platform compatibility
     pip install --no-cache-dir numba>=0.58.0 || \
-    pip install --no-cache-dir --no-deps numba>=0.58.0 || true && \
-    # Clean up pip cache
-    pip cache purge
+    pip install --no-cache-dir --no-deps numba>=0.58.0 || true
 
-# Copy application code (exclude unnecessary files)
+# Stage 2: Runtime stage (minimal)
+FROM python:3.10-slim-bullseye AS runtime
+
+# Set runtime environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
+    STREAMLIT_SERVER_PORT=8502 \
+    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create app directory
+WORKDIR /app
+
+# Copy application code
 COPY src/ ./src/
 COPY pipeline.py ./
 COPY streamlit_dashboard_modern.py ./
+COPY hospital_name_lookup.py ./
 COPY docker-entrypoint.sh ./
 COPY README.md ./
 
-# Create necessary directories with proper permissions
+# Create necessary directories
 RUN mkdir -p data/raw data/processed data/features data/features_enhanced \
     models reports visuals logs && \
     chmod -R 755 data models reports visuals logs && \
     chmod +x docker-entrypoint.sh
 
-# Create a non-root user for security
+# Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser && \
     chown -R appuser:appuser /app
 USER appuser
@@ -71,7 +90,7 @@ USER appuser
 # Expose port
 EXPOSE 8502
 
-# Health check with timeout
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8502/_stcore/health || exit 1
 

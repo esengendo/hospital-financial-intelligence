@@ -1,13 +1,15 @@
 # Git and version control
 .git
 .gitignore
-.github/
+.gitattributes
 
 # Python cache and virtual environments
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
 venv/
 env/
 ENV/
@@ -18,44 +20,54 @@ ENV/
 *.swp
 *.swo
 *~
+
+# OS generated files
 .DS_Store
-
-# OS specific files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# Jupyter notebooks and checkpoints
+.ipynb_checkpoints/
+*.ipynb
+
+# Data files (will be mounted as volumes)
+data/
+models/
+reports/
+visuals/
+logs/
+
+# Documentation and development files
+docs/
+tests/
 *.log
+*.tmp
 
-# Development and testing
-.pytest_cache/
-.coverage
-.tox/
-.cache
-.mypy_cache/
+# Docker files (except Dockerfile)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
 
-# Documentation and project files (keep essential ones)
-*.md
-!README.md
-!PIPELINE_GUIDE.md
+# Build and deployment scripts
+docker-build.sh
+docker-publish.sh
 
-# Large data files (mount these as volumes in production)
-data/raw/*
-!data/raw/.gitkeep
+# Large files that aren't needed in container
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.pkl
+*.joblib
+
+# Node.js (if any)
+node_modules/
+npm-debug.log*
 
 # Temporary files
 *.tmp
-*.temp
-temp/
-tmp/
-
-# Jupyter notebooks (development only)
-notebooks/
-*.ipynb
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-
-# Docker files (avoid recursive copies)
-Dockerfile*
-docker-compose*.yml
-.dockerignore 
+*.temp 
