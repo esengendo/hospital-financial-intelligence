@@ -46,9 +46,7 @@ RUN pip install --upgrade pip setuptools wheel && \
     imbalanced-learn>=0.12.4 && \
     # Install numba with fallback for platform compatibility
     pip install --no-cache-dir numba>=0.58.0 || \
-    pip install --no-cache-dir --no-deps numba>=0.58.0 || true && \
-    # Clean up pip cache
-    pip cache purge
+    pip install --no-cache-dir --no-deps numba>=0.58.0 || true
 
 # Copy application code (exclude unnecessary files)
 COPY src/ ./src/
@@ -56,6 +54,11 @@ COPY pipeline.py ./
 COPY streamlit_dashboard_modern.py ./
 COPY docker-entrypoint.sh ./
 COPY README.md ./
+
+# Copy hospital mapping files for real hospital names
+COPY hospital_osph_id_mapping.json ./
+COPY hospital_name_mapping.json ./
+COPY hospital_name_lookup.py ./
 
 # Create necessary directories with proper permissions
 RUN mkdir -p data/raw data/processed data/features data/features_enhanced \
