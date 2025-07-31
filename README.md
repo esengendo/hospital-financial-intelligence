@@ -195,6 +195,86 @@ python pipeline.py --dashboard
 
 ## 📁 **Project Architecture**
 
+### **🏗️ System Architecture Diagram**
+
+```mermaid
+graph TB
+    subgraph "🌐 User Interface Layer"
+        UI[📊 Streamlit Dashboard<br/>streamlit_dashboard_modern.py]
+        UI --> |"Hospital Selection<br/>Real-time Analytics"| CORE
+    end
+
+    subgraph "🎯 Orchestration Layer"  
+        CORE[🎯 Pipeline Controller<br/>pipeline.py]
+        CORE --> |"Data Processing"| DATA
+        CORE --> |"ML Training"| ML
+        CORE --> |"AI Analysis"| AI
+    end
+
+    subgraph "📊 Data Processing Layer"
+        DATA[📈 Data Pipeline]
+        DATA --> INGEST[📥 Data Ingestion<br/>src/ingest.py]
+        DATA --> PREPROC[🧹 Preprocessing<br/>src/preprocess.py] 
+        DATA --> FEATURES[⚙️ Feature Engineering<br/>src/features.py]
+        FEATURES --> |"147 Features"| ENHANCED[(📈 Enhanced Features<br/>data/features_enhanced/)]
+    end
+
+    subgraph "🤖 Machine Learning Layer"
+        ML[🧠 ML Pipeline]
+        ML --> MODEL[🎯 Modeling<br/>src/modeling.py]
+        ML --> METRICS[📊 Financial Metrics<br/>src/financial_metrics.py]
+        MODEL --> |"XGBoost Model<br/>99.5% ROC-AUC"| TRAINED[(🎯 Trained Models<br/>models/)]
+    end
+
+    subgraph "🧠 AI Integration Layer"
+        AI[🤖 AI Analysis]
+        AI --> LLM[🧠 LLM Integration<br/>src/llm_integration/]
+        AI --> GROQ[💬 Groq Analysis<br/>groq_hospital_analysis.py]
+        LLM --> |"Natural Language<br/>Insights"| REPORTS[(📄 AI Reports<br/>reports/)]
+    end
+
+    subgraph "💾 Data Storage"
+        RAW[(📂 Raw Data<br/>data/raw/)]
+        PROCESSED[(🔄 Processed Data<br/>data/processed/)]
+        ENHANCED
+        TRAINED
+        REPORTS
+        HOSPITAL[(🏥 Hospital Mapping<br/>hospital_*_mapping.json)]
+    end
+
+    subgraph "🐳 Deployment Layer"
+        DOCKER[🐳 Docker Container<br/>Dockerfile]
+        COMPOSE[⚙️ Docker Compose<br/>docker-compose.yml]
+        HUB[🌐 Docker Hub<br/>esengendo730/hospital-financial-ai]
+    end
+
+    RAW --> INGEST
+    INGEST --> PROCESSED
+    PROCESSED --> PREPROC
+    PREPROC --> FEATURES
+    HOSPITAL --> UI
+    DOCKER --> HUB
+    COMPOSE --> DOCKER
+
+    classDef interface fill:#e1f5fe
+    classDef core fill:#f3e5f5
+    classDef data fill:#e8f5e8
+    classDef ml fill:#fff3e0
+    classDef ai fill:#fce4ec
+    classDef storage fill:#f5f5f5
+    classDef deploy fill:#e3f2fd
+
+    class UI interface
+    class CORE core
+    class DATA,INGEST,PREPROC,FEATURES data
+    class ML,MODEL,METRICS ml
+    class AI,LLM,GROQ ai
+    class RAW,PROCESSED,ENHANCED,TRAINED,REPORTS,HOSPITAL storage
+    class DOCKER,COMPOSE,HUB deploy
+```
+
+### **📂 Directory Structure**
+
 ```
 hospital-financial-intelligence/
 ├── 🎯 pipeline.py                    # Master orchestration engine
@@ -206,7 +286,8 @@ hospital-financial-intelligence/
 │   ├── features.py                   # Feature engineering pipeline
 │   ├── financial_metrics.py          # Healthcare finance calculations
 │   └── llm_integration/              # AI analysis modules
-├── 🐳 Dockerfile.optimized           # Production containerization
+├── 🐳 Dockerfile                     # Production containerization
+├── 🏥 hospital_*_mapping.json        # Real hospital name mappings
 ├── 📈 data/features_enhanced/        # Engineered datasets (147 features)
 ├── 🎯 models/                        # Trained ML models & artifacts
 └── 📄 reports/                       # Executive summaries & analysis
